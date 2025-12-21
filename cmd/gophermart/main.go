@@ -1,32 +1,38 @@
 package main
 
 import (
-	"log"
-	"log/slog"
-	"os"
+	"context"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
 	"github.com/georgg2003/gophermart/internal/repository/postgres"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
+	logger.SetLevel(logrus.DebugLevel)
+
 	cfg, err := config.New()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
-	e := echo.New()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	repository := postgres.New(cfg, logger)
+	repository := postgres.New(cfg, logger, ctx)
 	usecase := usecase.New(cfg, logger, repository)
 	delivery := restapi.NewServer(cfg, logger, usecase)
 
+	e := echo.New()
+	e.Use(middleware.Gzip())
+
 	restapi.RegisterHandlers(e, delivery)
 
-	// And we serve HTTP until the world ends.
-	log.Fatal(e.Start(cfg.RunAddr))
+	logger.Fatal(e.Start(cfg.RunAddr))
 }

@@ -5,7 +5,7 @@ BINARY := gophermart
 MIGRATIONS_DIR := ./migrations
 
 # Параметры базы
-DB_URL := "postgres://gophermart:password@localhost:5432/gophermart?sslmode=disable"
+DB_URL := "postgres://gophermart:password@localhost:5435/gophermart?sslmode=disable"
 
 # Go параметры
 GO := go
@@ -26,10 +26,6 @@ all: build
 
 tidy:
 	$(GO) mod tidy
-
-deps:
-	$(GO) install go.uber.org/mock/mockgen@latest
-	$(GO) install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 ## ---------------------------
 ## Build & Run

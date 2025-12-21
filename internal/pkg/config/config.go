@@ -23,6 +23,7 @@ func New() (*Config, error) {
 	if err := conf.ReadFromEnv(); err != nil {
 		return nil, errutils.Wrap(err, "failed to read config from env")
 	}
+	conf.ReadFromFlags()
 	return conf, nil
 }
 
@@ -55,7 +56,7 @@ func (c *Config) ReadFromYaml() error {
 
 func (c *Config) ReadFromFlags() {
 	runAddr := flag.String("a", "", "listen addres")
-	dataBaseURI := flag.String("d", "", "base url")
+	dataBaseURI := flag.String("d", "", "db uri")
 	accrualSysAddr := flag.String("r", "", "accrual system address")
 	flag.Parse()
 
