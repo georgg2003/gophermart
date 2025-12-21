@@ -68,13 +68,15 @@ func main() {
 	e := echo.New()
 	e.Use(
 		echoMiddleware.RequestID(),
-		middleware.LoggingMiddleware(logger),
+		echoMiddleware.Decompress(),
 		echoMiddleware.Gzip(),
 		echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
 			AllowOrigins: []string{"*"},
 			AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
 			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		}),
+		echoMiddleware.Recover(),
+		middleware.LoggingMiddleware(logger),
 		validator,
 	)
 

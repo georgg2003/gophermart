@@ -14,6 +14,7 @@ type Config struct {
 	RunAddr        string `mapstructure:"run_address" env:"RUN_ADDRESS"`
 	DataBaseURI    string `mapstructure:"database_uri" env:"DATABASE_URI"`
 	AccrualSysAddr string `mapstructure:"accrual_system_address" env:"ACCRUAL_SYSTEM_ADDRESS"`
+	JWTSecretKey   string `mapstructure:"jwt_secret_key" env:"JWT_SECRET_KEY"`
 }
 
 func New() (*Config, error) {

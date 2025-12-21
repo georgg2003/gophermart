@@ -1,18 +1,32 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/georgg2003/gophermart/internal/pkg/config"
 	"github.com/georgg2003/gophermart/internal/repository"
+	"github.com/georgg2003/gophermart/pkg/jwthelper"
 	"github.com/sirupsen/logrus"
 )
 
 type useCase struct {
-	cfg    *config.Config
-	logger *logrus.Logger
-	repo   repository.Repository
+	cfg       *config.Config
+	logger    *logrus.Logger
+	repo      repository.Repository
+	jwtHelper *jwthelper.JWTHelper
 }
 
 type UseCase interface {
+	UserRegister(
+		ctx context.Context,
+		login string,
+		password string,
+	) (accessToken string, err error)
+	UserLogin(
+		ctx context.Context,
+		login string,
+		password string,
+	) (accessToken string, err error)
 }
 
 func New(
@@ -21,8 +35,9 @@ func New(
 	repo repository.Repository,
 ) UseCase {
 	return &useCase{
-		cfg:    cfg,
-		logger: logger,
-		repo:   repo,
+		cfg:       cfg,
+		logger:    logger,
+		repo:      repo,
+		jwtHelper: jwthelper.New([]byte(cfg.JWTSecretKey)),
 	}
 }
