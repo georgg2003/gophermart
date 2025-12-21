@@ -5,6 +5,7 @@ import (
 
 	"github.com/georgg2003/gophermart/internal/pkg/config"
 	"github.com/georgg2003/gophermart/internal/repository"
+	"github.com/georgg2003/gophermart/pkg/errutils"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 
@@ -19,29 +20,29 @@ type postgres struct {
 	db     *pgxpool.Pool
 }
 
-func New(cfg *config.Config, logger *logrus.Logger, ctx context.Context) repository.Repository {
+func New(cfg *config.Config, logger *logrus.Logger, ctx context.Context) (repository.Repository, error) {
 	var db *pgxpool.Pool
 
 	logger.WithField("dsn", cfg.DataBaseURI).Debug("making new db connection pool")
 
 	poolConfig, err := pgxpool.ParseConfig(cfg.DataBaseURI)
 	if err != nil {
-		logger.WithError(err).Fatal("unable to parse DATABASE_URL")
+		return nil, errutils.Wrap(err, "unable to parse DATABASE_URL")
 	}
 
 	db, err = pgxpool.NewWithConfig(ctx, poolConfig)
 	if err != nil {
-		logger.WithError(err).Fatal("unable to create connection pool")
+		return nil, errutils.Wrap(err, "unable to create connection pool")
 	}
 
 	m, err := migrate.New("file://migrations", cfg.DataBaseURI)
 	if err != nil {
-		logger.WithError(err).Fatal("failed to create migrate instance")
+		return nil, errutils.Wrap(err, "failed to create migrate instance")
 	}
 
 	err = m.Up()
 	if err != nil && err != migrate.ErrNoChange {
-		logger.WithError(err).Fatal("failed to migrate")
+		return nil, errutils.Wrap(err, "failed apply migration")
 	}
 	logger.Info("db successfully migrated")
 
@@ -49,5 +50,5 @@ func New(cfg *config.Config, logger *logrus.Logger, ctx context.Context) reposit
 		cfg:    cfg,
 		logger: logger,
 		db:     db,
-	}
+	}, nil
 }
