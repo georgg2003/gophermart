@@ -13,7 +13,7 @@ import (
 func (p *postgres) GetUserByLogin(
 	ctx context.Context,
 	login string,
-) (creds *models.UserCredentials, err error) {
+) (*models.UserCredentials, error) {
 	conn, err := p.db.Acquire(ctx)
 	if err != nil {
 		err = errutils.Wrap(
@@ -24,6 +24,7 @@ func (p *postgres) GetUserByLogin(
 	}
 	defer conn.Release()
 
+	var creds models.UserCredentials
 	err = conn.QueryRow(
 		ctx,
 		"SELECT id, login, password_hash FROM users WHERE login = $1",
@@ -31,7 +32,7 @@ func (p *postgres) GetUserByLogin(
 	).Scan(&creds.ID, &creds.Login, &creds.PasswordHash)
 
 	if err == nil {
-		return creds, nil
+		return &creds, nil
 	}
 
 	if errors.Is(err, pgx.ErrNoRows) {
