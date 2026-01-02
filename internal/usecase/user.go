@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 
 	"github.com/georgg2003/gophermart/internal/models"
+	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
 	"github.com/georgg2003/gophermart/pkg/errutils"
 )
 
@@ -47,8 +48,8 @@ func (uc *useCase) UserLogin(
 
 func (uc *useCase) UserGetBalance(
 	ctx context.Context,
-	userID int64,
 ) (balance *models.UserBalance, err error) {
+	userID := contextlib.MustGetUserID(ctx, uc.logger)
 	balance, err = uc.repo.GetUserBalance(ctx, userID)
 	if err != nil {
 		return nil, errutils.Wrap(err, "failed to get user balance")
@@ -58,8 +59,8 @@ func (uc *useCase) UserGetBalance(
 
 func (uc *useCase) UserGetWithdrawals(
 	ctx context.Context,
-	userID int64,
 ) (withdrawals []models.Withdrawal, err error) {
+	userID := contextlib.MustGetUserID(ctx, uc.logger)
 	withdrawals, err = uc.repo.GetUserWithdrawals(ctx, userID)
 	if err != nil {
 		return nil, errutils.Wrap(err, "failed to get user withdrawals")
@@ -68,4 +69,18 @@ func (uc *useCase) UserGetWithdrawals(
 		return nil, ErrWidthdrawalsNotFound
 	}
 	return withdrawals, err
+}
+
+func (uc *useCase) UserGetOrders(
+	ctx context.Context,
+) (orders []models.Order, err error) {
+	userID := contextlib.MustGetUserID(ctx, uc.logger)
+	orders, err = uc.repo.GetUserOrders(ctx, userID)
+	if err != nil {
+		return nil, errutils.Wrap(err, "failed to get user withdrawals")
+	}
+	if len(orders) == 0 {
+		return nil, ErrOrdersNotFound
+	}
+	return orders, err
 }

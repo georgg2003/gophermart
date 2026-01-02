@@ -71,6 +71,21 @@ func (mr *MockRepositoryMockRecorder) GetUserByLogin(ctx, login any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockRepository)(nil).GetUserByLogin), ctx, login)
 }
 
+// GetUserOrders mocks base method.
+func (m *MockRepository) GetUserOrders(ctx context.Context, userID int64) ([]models.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserOrders", ctx, userID)
+	ret0, _ := ret[0].([]models.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserOrders indicates an expected call of GetUserOrders.
+func (mr *MockRepositoryMockRecorder) GetUserOrders(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOrders", reflect.TypeOf((*MockRepository)(nil).GetUserOrders), ctx, userID)
+}
+
 // GetUserWithdrawals mocks base method.
 func (m *MockRepository) GetUserWithdrawals(ctx context.Context, userID int64) ([]models.Withdrawal, error) {
 	m.ctrl.T.Helper()

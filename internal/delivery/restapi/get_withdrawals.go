@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/labstack/echo/v4"
 )
@@ -14,8 +13,7 @@ func (s *server) GetApiUserWithdrawals(c echo.Context) error {
 	defer req.Body.Close()
 	ctx := req.Context()
 
-	userID := contextlib.MustGetUserID(ctx, s.logger)
-	withdrawls, err := s.uc.UserGetWithdrawals(ctx, userID)
+	withdrawls, err := s.uc.UserGetWithdrawals(ctx)
 	if err != nil {
 		if errors.Is(err, usecase.ErrWidthdrawalsNotFound) {
 			return c.String(http.StatusNoContent, "No withdrawals found")
@@ -32,7 +30,5 @@ func (s *server) GetApiUserWithdrawals(c echo.Context) error {
 			ProcessedAt: v.ProcessedAt,
 		})
 	}
-	c.JSON(http.StatusOK, withdrawalsDTO)
-
-	return nil
+	return c.JSON(http.StatusOK, withdrawalsDTO)
 }

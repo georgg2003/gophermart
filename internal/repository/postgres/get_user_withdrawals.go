@@ -30,7 +30,7 @@ func (p *postgres) GetUserWithdrawals(
 			ord.processed_at as processed_at
 		FROM transactions tr
 		LEFT JOIN orders ord on ord.id = tr.order_id
-		WHERE tr.user_id = $1
+		WHERE tr.user_id = $1 AND tr.amount < 0
 		ORDER BY ord.uploaded_at DESC`,
 		userID,
 	)

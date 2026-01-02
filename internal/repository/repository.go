@@ -25,4 +25,8 @@ type Repository interface {
 		ctx context.Context,
 		userID int64,
 	) (withdrawals []models.Withdrawal, err error)
+	GetUserOrders(
+		ctx context.Context,
+		userID int64,
+	) (orders []models.Order, err error)
 }
