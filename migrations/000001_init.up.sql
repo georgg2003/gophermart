@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS orders (
   user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   number TEXT NOT NULL UNIQUE,
   status TEXT NOT NULL DEFAULT 'NEW' CHECK (status in ('NEW', 'PROCESSING', 'INVALID', 'PROCESSED')),
-  uploaded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  uploaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  processed_at TIMESTAMPTZ NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_orders_user_uploaded_at

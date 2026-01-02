@@ -71,6 +71,21 @@ func (mr *MockRepositoryMockRecorder) GetUserByLogin(ctx, login any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockRepository)(nil).GetUserByLogin), ctx, login)
 }
 
+// GetUserWithdrawals mocks base method.
+func (m *MockRepository) GetUserWithdrawals(ctx context.Context, userID int64) ([]models.Withdrawal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserWithdrawals", ctx, userID)
+	ret0, _ := ret[0].([]models.Withdrawal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserWithdrawals indicates an expected call of GetUserWithdrawals.
+func (mr *MockRepositoryMockRecorder) GetUserWithdrawals(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdrawals", reflect.TypeOf((*MockRepository)(nil).GetUserWithdrawals), ctx, userID)
+}
+
 // NewUser mocks base method.
 func (m *MockRepository) NewUser(ctx context.Context, login, passwordHash string) (int64, error) {
 	m.ctrl.T.Helper()

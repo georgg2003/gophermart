@@ -21,4 +21,8 @@ type Repository interface {
 		ctx context.Context,
 		userID int64,
 	) (balance *models.UserBalance, err error)
+	GetUserWithdrawals(
+		ctx context.Context,
+		userID int64,
+	) (withdrawals []models.Withdrawal, err error)
 }

@@ -56,9 +56,9 @@ type WithdrawRequest struct {
 
 // WithdrawalInfo defines model for WithdrawalInfo.
 type WithdrawalInfo struct {
-	Order       string    `json:"order"`
-	ProcessedAt time.Time `json:"processed_at"`
-	Sum         float64   `json:"sum"`
+	Order       *string    `json:"order,omitempty"`
+	ProcessedAt *time.Time `json:"processed_at,omitempty"`
+	Sum         float64    `json:"sum"`
 }
 
 // PostApiUserOrdersTextBody defines parameters for PostApiUserOrders.

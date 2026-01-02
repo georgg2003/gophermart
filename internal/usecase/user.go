@@ -55,3 +55,17 @@ func (uc *useCase) UserGetBalance(
 	}
 	return balance, err
 }
+
+func (uc *useCase) UserGetWithdrawals(
+	ctx context.Context,
+	userID int64,
+) (withdrawals []models.Withdrawal, err error) {
+	withdrawals, err = uc.repo.GetUserWithdrawals(ctx, userID)
+	if err != nil {
+		return nil, errutils.Wrap(err, "failed to get user withdrawals")
+	}
+	if len(withdrawals) == 0 {
+		return nil, ErrWidthdrawalsNotFound
+	}
+	return withdrawals, err
+}

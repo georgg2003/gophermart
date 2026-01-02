@@ -32,6 +32,10 @@ type UseCase interface {
 		ctx context.Context,
 		userID int64,
 	) (balance *models.UserBalance, err error)
+	UserGetWithdrawals(
+		ctx context.Context,
+		userID int64,
+	) (withdrawals []models.Withdrawal, err error)
 }
 
 func New(
