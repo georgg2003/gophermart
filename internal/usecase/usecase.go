@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/georgg2003/gophermart/internal/models"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
 	"github.com/georgg2003/gophermart/internal/repository"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
@@ -27,6 +28,10 @@ type UseCase interface {
 		login string,
 		password string,
 	) (accessToken string, err error)
+	UserGetBalance(
+		ctx context.Context,
+		userID int64,
+	) (balance *models.UserBalance, err error)
 }
 
 func New(

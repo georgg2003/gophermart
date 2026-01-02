@@ -17,4 +17,8 @@ type Repository interface {
 		ctx context.Context,
 		login string,
 	) (creds *models.UserCredentials, err error)
+	GetUserBalance(
+		ctx context.Context,
+		userID int64,
+	) (balance *models.UserBalance, err error)
 }

@@ -5,15 +5,14 @@ import (
 	"errors"
 
 	"github.com/georgg2003/gophermart/internal/models"
-	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/georgg2003/gophermart/pkg/errutils"
 	"github.com/jackc/pgx/v5"
 )
 
-func (p *postgres) GetUserByLogin(
+func (p *postgres) GetUserBalance(
 	ctx context.Context,
-	login string,
-) (*models.UserCredentials, error) {
+	userID int64,
+) (*models.UserBalance, error) {
 	conn, err := p.db.Acquire(ctx)
 	if err != nil {
 		err = errutils.Wrap(
@@ -24,20 +23,28 @@ func (p *postgres) GetUserByLogin(
 	}
 	defer conn.Release()
 
-	var creds models.UserCredentials
+	var balance models.UserBalance
 	err = conn.QueryRow(
 		ctx,
-		"SELECT id, login, password_hash FROM users WHERE login = $1",
-		login,
-	).Scan(&creds.ID, &creds.Login, &creds.PasswordHash)
+		`SELECT 
+			COALESCE(SUM(amount), 0) AS current,
+			COALESCE(SUM(
+				CASE
+        	WHEN amount < 0 THEN amount
+    		END
+			), 0) AS withdrawn 
+			FROM transactions 
+			WHERE user_id = $1`,
+		userID,
+	).Scan(&balance.Current.AmountMinor, &balance.Withdrawn.AmountMinor)
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, usecase.ErrUserNotFound
+			return &balance, nil
 		}
-		err = errutils.Wrap(err, "failed to get a user by login")
+		err = errutils.Wrap(err, "failed to get user balance")
 		return nil, err
 	}
 
-	return &creds, nil
+	return &balance, err
 }

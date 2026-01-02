@@ -32,14 +32,13 @@ func (p *postgres) NewUser(
 		login, passwordHash,
 	).Scan(&userID)
 
-	if err == nil {
-		return userID, nil
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return -1, usecase.ErrUserAlreadyExists
+		}
+		return -1, errutils.Wrap(err, "failed to insert a new user")
 	}
 
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-		return -1, usecase.ErrUserAlreadyExists
-	}
-
-	return -1, errutils.Wrap(err, "failed to insert a new user")
+	return userID, nil
 }

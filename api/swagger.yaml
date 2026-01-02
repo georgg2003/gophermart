@@ -45,7 +45,7 @@ components:
           enum: [NEW, PROCESSING, INVALID, PROCESSED]
         accrual:
           type: number
-          format: float
+          format: double
         uploaded_at:
           type: string
           format: date-time
@@ -56,10 +56,10 @@ components:
       properties:
         current:
           type: number
-          format: float
+          format: double
         withdrawn:
           type: number
-          format: float
+          format: double
 
     WithdrawRequest:
       type: object
@@ -69,7 +69,7 @@ components:
           type: string
         sum:
           type: number
-          format: float
+          format: double
 
     WithdrawalInfo:
       type: object
@@ -79,7 +79,7 @@ components:
           type: string
         sum:
           type: number
-          format: float
+          format: double
         processed_at:
           type: string
           format: date-time

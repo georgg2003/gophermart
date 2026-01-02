@@ -6,9 +6,9 @@ import (
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
+	"github.com/georgg2003/gophermart/internal/pkg/middleware"
 	"github.com/georgg2003/gophermart/internal/repository/postgres"
 	"github.com/georgg2003/gophermart/internal/usecase"
-	"github.com/georgg2003/gophermart/pkg/middleware"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/labstack/echo/v4"
@@ -77,6 +77,12 @@ func main() {
 		}),
 		echoMiddleware.Recover(),
 		middleware.LoggingMiddleware(logger),
+		middleware.NewAuthMiddleware(cfg, logger, func(c echo.Context) bool {
+			if c.Path() == "/api/user/login" || c.Path() == "/api/user/register" {
+				return true
+			}
+			return false
+		}),
 		validator,
 	)
 

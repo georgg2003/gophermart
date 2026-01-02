@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
+	"github.com/georgg2003/gophermart/internal/models"
 	"github.com/georgg2003/gophermart/pkg/errutils"
 )
 
@@ -42,4 +43,15 @@ func (uc *useCase) UserLogin(
 	}
 
 	return uc.jwtHelper.NewAccessToken(userCredentials.ID)
+}
+
+func (uc *useCase) UserGetBalance(
+	ctx context.Context,
+	userID int64,
+) (balance *models.UserBalance, err error) {
+	balance, err = uc.repo.GetUserBalance(ctx, userID)
+	if err != nil {
+		return nil, errutils.Wrap(err, "failed to get user balance")
+	}
+	return balance, err
 }

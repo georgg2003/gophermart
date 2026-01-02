@@ -5,3 +5,8 @@ type UserCredentials struct {
 	Login        string
 	PasswordHash string
 }
+
+type UserBalance struct {
+	Current   Money
+	Withdrawn Money
+}

@@ -21,8 +21,8 @@ const (
 
 // BalanceResponse defines model for BalanceResponse.
 type BalanceResponse struct {
-	Current   float32 `json:"current"`
-	Withdrawn float32 `json:"withdrawn"`
+	Current   float64 `json:"current"`
+	Withdrawn float64 `json:"withdrawn"`
 }
 
 // LoginRequest defines model for LoginRequest.
@@ -33,7 +33,7 @@ type LoginRequest struct {
 
 // OrderInfo defines model for OrderInfo.
 type OrderInfo struct {
-	Accrual    *float32        `json:"accrual,omitempty"`
+	Accrual    *float64        `json:"accrual,omitempty"`
 	Number     string          `json:"number"`
 	Status     OrderInfoStatus `json:"status"`
 	UploadedAt time.Time       `json:"uploaded_at"`
@@ -51,14 +51,14 @@ type RegisterRequest struct {
 // WithdrawRequest defines model for WithdrawRequest.
 type WithdrawRequest struct {
 	Order string  `json:"order"`
-	Sum   float32 `json:"sum"`
+	Sum   float64 `json:"sum"`
 }
 
 // WithdrawalInfo defines model for WithdrawalInfo.
 type WithdrawalInfo struct {
 	Order       string    `json:"order"`
 	ProcessedAt time.Time `json:"processed_at"`
-	Sum         float32   `json:"sum"`
+	Sum         float64   `json:"sum"`
 }
 
 // PostApiUserOrdersTextBody defines parameters for PostApiUserOrders.
