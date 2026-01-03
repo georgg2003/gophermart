@@ -3,7 +3,6 @@ package restapi
 import (
 	"github.com/georgg2003/gophermart/internal/pkg/config"
 	"github.com/georgg2003/gophermart/internal/usecase"
-	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,5 +26,3 @@ func NewServer(
 		uc:     uc,
 	}
 }
-
-func (s *server) PostApiUserBalanceWithdraw(ctx echo.Context) error { return nil }

@@ -41,6 +41,11 @@ type UseCase interface {
 		ctx context.Context,
 		orderNumber string,
 	) (err error)
+	UserCreateWithdrawal(
+		ctx context.Context,
+		orderNumber string,
+		amount models.Money,
+	) (err error)
 }
 
 func New(

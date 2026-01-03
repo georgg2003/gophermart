@@ -90,5 +90,22 @@ func (uc *useCase) UserCreateOrder(
 	orderNumber string,
 ) (err error) {
 	userID := contextlib.MustGetUserID(ctx, uc.logger)
-	return uc.repo.CreateUserOrder(ctx, userID, orderNumber)
+	err = uc.repo.CreateUserOrder(ctx, userID, orderNumber)
+	if err != nil {
+		err = errutils.Wrap(err, "failed to create order")
+	}
+	return err
+}
+
+func (uc *useCase) UserCreateWithdrawal(
+	ctx context.Context,
+	orderNumber string,
+	amount models.Money,
+) (err error) {
+	userID := contextlib.MustGetUserID(ctx, uc.logger)
+	err = uc.repo.CreateUserWithdrawal(ctx, userID, orderNumber, amount.AmountMinor)
+	if err != nil {
+		err = errutils.Wrap(err, "failed to withdraw")
+	}
+	return err
 }

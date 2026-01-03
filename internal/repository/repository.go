@@ -34,4 +34,10 @@ type Repository interface {
 		userID int64,
 		orderNumber string,
 	) (err error)
+	CreateUserWithdrawal(
+		ctx context.Context,
+		userID int64,
+		orderNumber string,
+		amount int64,
+	) (err error)
 }
