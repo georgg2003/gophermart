@@ -8,7 +8,7 @@ import (
 
 //go:generate go tool mockgen -destination ./mock/mock.go -package mock . Repository
 type Repository interface {
-	NewUser(
+	CreateUser(
 		ctx context.Context,
 		login string,
 		passwordHash string,
@@ -29,4 +29,9 @@ type Repository interface {
 		ctx context.Context,
 		userID int64,
 	) (orders []models.Order, err error)
+	CreateUserOrder(
+		ctx context.Context,
+		userID int64,
+		orderNumber string,
+	) (err error)
 }

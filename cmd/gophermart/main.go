@@ -54,9 +54,7 @@ func main() {
 		swagger,
 		&oapiValidator.Options{
 			Options: openapi3filter.Options{
-				AuthenticationFunc: func(context.Context, *openapi3filter.AuthenticationInput) error {
-					return nil // TODO
-				},
+				AuthenticationFunc: openapi3filter.NoopAuthenticationFunc,
 			},
 		},
 	)

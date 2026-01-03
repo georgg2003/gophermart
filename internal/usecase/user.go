@@ -21,7 +21,7 @@ func (uc *useCase) UserRegister(
 	password string,
 ) (accessToken string, err error) {
 	hash := passwordToHash(password)
-	userID, err := uc.repo.NewUser(ctx, login, hash)
+	userID, err := uc.repo.CreateUser(ctx, login, hash)
 	if err != nil {
 		return "", errutils.Wrap(err, "failed to create new user")
 	}
@@ -83,4 +83,12 @@ func (uc *useCase) UserGetOrders(
 		return nil, ErrOrdersNotFound
 	}
 	return orders, err
+}
+
+func (uc *useCase) UserCreateOrder(
+	ctx context.Context,
+	orderNumber string,
+) (err error) {
+	userID := contextlib.MustGetUserID(ctx, uc.logger)
+	return uc.repo.CreateUserOrder(ctx, userID, orderNumber)
 }

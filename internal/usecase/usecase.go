@@ -37,6 +37,10 @@ type UseCase interface {
 	UserGetOrders(
 		ctx context.Context,
 	) (orders []models.Order, err error)
+	UserCreateOrder(
+		ctx context.Context,
+		orderNumber string,
+	) (err error)
 }
 
 func New(

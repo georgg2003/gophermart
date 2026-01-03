@@ -62,7 +62,7 @@ type WithdrawalInfo struct {
 }
 
 // PostApiUserOrdersTextBody defines parameters for PostApiUserOrders.
-type PostApiUserOrdersTextBody = string
+type PostApiUserOrdersTextBody = float32
 
 // PostApiUserBalanceWithdrawJSONRequestBody defines body for PostApiUserBalanceWithdraw for application/json ContentType.
 type PostApiUserBalanceWithdrawJSONRequestBody = WithdrawRequest

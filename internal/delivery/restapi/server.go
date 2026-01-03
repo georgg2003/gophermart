@@ -29,4 +29,3 @@ func NewServer(
 }
 
 func (s *server) PostApiUserBalanceWithdraw(ctx echo.Context) error { return nil }
-func (s *server) PostApiUserOrders(ctx echo.Context) error          { return nil }

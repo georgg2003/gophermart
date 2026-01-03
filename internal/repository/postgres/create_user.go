@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-func (p *postgres) NewUser(
+func (p *postgres) CreateUser(
 	ctx context.Context,
 	login string,
 	passwordHash string,

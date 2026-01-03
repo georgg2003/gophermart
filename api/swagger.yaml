@@ -84,9 +84,6 @@ components:
           type: string
           format: date-time
 
-security:
-  - bearerAuth: []
-
 paths:
   /api/user/register:
     post:
