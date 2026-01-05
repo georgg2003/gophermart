@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS orders (
   status TEXT NOT NULL DEFAULT 'NEW' CHECK (status in ('NEW', 'PROCESSING', 'INVALID', 'PROCESSED')),
   uploaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   processed_at TIMESTAMPTZ NULL
+  processing_since TIMESTAMPTZ NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_orders_user_uploaded_at

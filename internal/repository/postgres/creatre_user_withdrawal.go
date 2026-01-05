@@ -29,6 +29,7 @@ func (p *postgres) CreateUserWithdrawal(
 	if err != nil {
 		return errutils.Wrap(err, "failed to begin a transaction when creating a new withdrawal")
 	}
+	defer tx.Rollback(ctx)
 
 	var balance int64
 	err = tx.QueryRow(

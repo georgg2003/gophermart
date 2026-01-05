@@ -15,3 +15,5 @@ var ErrOrderAlreadyUploadedByAnotherUser = errors.New("order already uploaded by
 
 var ErrNotEnoughBalance = errors.New("not enough balance to withdraw")
 var ErrWithdrawalAlreadyExists = errors.New("withdrawal already exists")
+
+var ErrNoOrdersToUpdate = errors.New("no orders to update")

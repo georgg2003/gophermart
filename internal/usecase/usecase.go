@@ -11,10 +11,11 @@ import (
 )
 
 type useCase struct {
-	cfg       *config.Config
-	logger    *logrus.Logger
-	repo      repository.Repository
-	jwtHelper *jwthelper.JWTHelper
+	cfg         *config.Config
+	logger      *logrus.Logger
+	repo        repository.Repository
+	jwtHelper   *jwthelper.JWTHelper
+	accrualRepo repository.AccrualRepo
 }
 
 type UseCase interface {
@@ -46,17 +47,22 @@ type UseCase interface {
 		orderNumber string,
 		amount models.Money,
 	) (err error)
+	MakeProcessorWorker(
+		ctx context.Context,
+	)
 }
 
 func New(
 	cfg *config.Config,
 	logger *logrus.Logger,
 	repo repository.Repository,
+	accrualRepo repository.AccrualRepo,
 ) UseCase {
 	return &useCase{
-		cfg:       cfg,
-		logger:    logger,
-		repo:      repo,
-		jwtHelper: jwthelper.New([]byte(cfg.JWTSecretKey)),
+		cfg:         cfg,
+		logger:      logger,
+		repo:        repo,
+		jwtHelper:   jwthelper.New([]byte(cfg.JWTSecretKey)),
+		accrualRepo: accrualRepo,
 	}
 }

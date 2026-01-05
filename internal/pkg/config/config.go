@@ -11,15 +11,21 @@ import (
 )
 
 type Config struct {
-	RunAddr        string `mapstructure:"run_address" env:"RUN_ADDRESS"`
-	DataBaseURI    string `mapstructure:"database_uri" env:"DATABASE_URI"`
-	AccrualSysAddr string `mapstructure:"accrual_system_address" env:"ACCRUAL_SYSTEM_ADDRESS"`
-	JWTSecretKey   string `mapstructure:"jwt_secret_key" env:"JWT_SECRET_KEY"`
+	RunAddr             string `mapstructure:"run_address" env:"RUN_ADDRESS"`
+	DataBaseURI         string `mapstructure:"database_uri" env:"DATABASE_URI"`
+	AccrualSysAddr      string `mapstructure:"accrual_system_address" env:"ACCRUAL_SYSTEM_ADDRESS"`
+	JWTSecretKey        string `mapstructure:"jwt_secret_key" env:"JWT_SECRET_KEY"`
+	Workers             int    `mapstructure:"workers" env:"WORKERS"`
+	WorkerTimeout       int    `mapstructure:"worker_timeout" env:"WORKER_TIMEOUT"`
+	ProcessRetryTimeout int    `mapstructure:"process_retry_timeout" env:"PROCESS_RETRY_TIMEOUT"`
 }
 
 func New() (*Config, error) {
 	conf := &Config{
-		RunAddr: "localhost:8080",
+		RunAddr:             "localhost:8080",
+		Workers:             3,
+		WorkerTimeout:       5,
+		ProcessRetryTimeout: 30,
 	}
 	if err := conf.ReadFromEnv(); err != nil {
 		return nil, errutils.Wrap(err, "failed to read config from env")

@@ -6,7 +6,7 @@ import (
 	"github.com/georgg2003/gophermart/internal/models"
 )
 
-//go:generate go tool mockgen -destination ./mock/mock.go -package mock . Repository
+//go:generate go tool mockgen -destination ./mock/mock.go -package mock . Repository,AccrualRepo
 type Repository interface {
 	CreateUser(
 		ctx context.Context,
@@ -40,4 +40,25 @@ type Repository interface {
 		orderNumber string,
 		amount int64,
 	) (err error)
+	GetOrderToProcess(
+		ctx context.Context,
+		processRetryTimeout int,
+	) (orderNumber string, err error)
+	SetOrderStatus(
+		ctx context.Context,
+		orderNumber string,
+		orderStatus models.OrderStatus,
+	) (err error)
+	ApplyOrderAccrual(
+		ctx context.Context,
+		orderNumber string,
+		accrual int,
+	) (err error)
+}
+
+type AccrualRepo interface {
+	GetOrderAccrual(
+		ctx context.Context,
+		orderNumber string,
+	) (response *models.GetOrderAccrualResponse, err error)
 }

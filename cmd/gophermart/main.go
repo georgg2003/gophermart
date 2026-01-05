@@ -7,6 +7,7 @@ import (
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
 	"github.com/georgg2003/gophermart/internal/pkg/middleware"
+	"github.com/georgg2003/gophermart/internal/repository/accrual"
 	"github.com/georgg2003/gophermart/internal/repository/postgres"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/getkin/kin-openapi/openapi3"
@@ -36,8 +37,9 @@ func main() {
 	if err != nil {
 		logger.WithError(err).Fatal("failed to create postgres repository")
 	}
+	accrualRepo := accrual.New(cfg)
 
-	usecase := usecase.New(cfg, logger, repository)
+	usecase := usecase.New(cfg, logger, repository, accrualRepo)
 	delivery := restapi.NewServer(cfg, logger, usecase)
 
 	data, err := os.ReadFile(pathToSwagger)
@@ -85,6 +87,10 @@ func main() {
 	)
 
 	restapi.RegisterHandlers(e, delivery)
+
+	for i := 0; i < cfg.Workers; i++ {
+		go usecase.MakeProcessorWorker(ctx)
+	}
 
 	err = e.Start(cfg.RunAddr)
 	if err != nil {

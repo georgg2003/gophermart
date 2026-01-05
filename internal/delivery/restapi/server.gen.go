@@ -63,8 +63,6 @@ func (w *ServerInterfaceWrapper) PostApiUserBalanceWithdraw(ctx echo.Context) er
 func (w *ServerInterfaceWrapper) PostApiUserLogin(ctx echo.Context) error {
 	var err error
 
-	ctx.Set(BearerAuthScopes, []string{})
-
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.PostApiUserLogin(ctx)
 	return err
@@ -95,8 +93,6 @@ func (w *ServerInterfaceWrapper) PostApiUserOrders(ctx echo.Context) error {
 // PostApiUserRegister converts echo context to params.
 func (w *ServerInterfaceWrapper) PostApiUserRegister(ctx echo.Context) error {
 	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.PostApiUserRegister(ctx)
