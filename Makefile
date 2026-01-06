@@ -16,7 +16,7 @@ PKG := ./...
 
 export PATH := $(GOPATH)/bin:$(PATH)
 
-.PHONY: all tidy deps build run test mock migrate-up migrate-down clean
+.PHONY: all tidy deps build run test mock migrate-up migrate-down clean accrual
 
 all: build
 
@@ -33,6 +33,9 @@ tidy:
 
 build:
 	$(GO) build -o bin/$(BINARY) $(PKG)
+
+accrual:
+	./cmd/accrual/accrual_darwin_arm64 -a :8000
 
 run:
 	$(GO) run $(PKG) -d $(DB_URL)

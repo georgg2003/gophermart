@@ -23,6 +23,7 @@ type Config struct {
 func New() (*Config, error) {
 	conf := &Config{
 		RunAddr:             "localhost:8080",
+		AccrualSysAddr:      "http://localhost:8000",
 		Workers:             3,
 		WorkerTimeout:       5,
 		ProcessRetryTimeout: 30,

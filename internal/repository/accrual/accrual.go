@@ -24,17 +24,26 @@ func (a *accrual) GetOrderAccrual(
 	r, err := a.client.R().
 		SetPathParam("number", orderNumber).
 		Get("/api/orders/{number}")
+
 	logger := a.logger.WithField("order_number", orderNumber)
-	logger.WithField("trace", r.Request.TraceInfo()).Debug("request to accrual service")
+	logger.WithFields(logrus.Fields{
+		"trace": r.Request.TraceInfo(),
+		"url":   r.Request.URL,
+	}).Debug("request to accrual service")
+
 	if err != nil {
 		logger.WithError(err).Error("request to accrual failed")
 		return nil, errutils.Wrap(err, "request to accrual failed")
 	}
+
+	logger.WithField("response_body", r.String()).Debug("accrual response body")
+
 	body := r.Body()
 	if body == nil {
 		logger.Warn("accrual response has nil body")
 		return nil, nil
 	}
+
 	if err = json.Unmarshal(r.Body(), resp); err != nil {
 		logger.WithError(err).Error("failed to unmarshall accrual response")
 		return nil, errutils.Wrap(err, "failed to unmarshall accrual response")

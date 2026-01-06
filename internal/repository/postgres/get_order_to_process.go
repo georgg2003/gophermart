@@ -38,7 +38,7 @@ func (p *postgres) GetOrderToProcess(
 				OR (status = 'PROCESSING' AND (NOW() - processing_since) > $1) 
 			LIMIT 1
 		) FOR UPDATE SKIP LOCKED`,
-		time.Duration(processRetryTimeout),
+		time.Duration(processRetryTimeout*int(time.Second)),
 	).Scan(&orderNumber)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
