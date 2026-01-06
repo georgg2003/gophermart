@@ -27,7 +27,7 @@ func main() {
 
 	cfg, err := config.New()
 	if err != nil {
-		logger.Fatal(err)
+		logger.WithError(err).Fatal("failed to create config")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -44,12 +44,12 @@ func main() {
 
 	data, err := os.ReadFile(pathToSwagger)
 	if err != nil {
-		logger.WithError(err).Fatal("error reading %s", pathToSwagger)
+		logger.WithError(err).Fatalf("error reading %s", pathToSwagger)
 	}
 
 	swagger, err := openapi3.NewLoader().LoadFromData(data)
 	if err != nil {
-		logger.WithError(err).Fatal("error parsing %s as Swagger YAML", pathToSwagger)
+		logger.WithError(err).Fatalf("error parsing %s as Swagger YAML", pathToSwagger)
 	}
 
 	validator := oapiValidator.OapiRequestValidatorWithOptions(

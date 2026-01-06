@@ -14,6 +14,10 @@ func (uc *useCase) processOrder(ctx context.Context) {
 		uc.logger.WithError(err).Error("failed to get order to process")
 		return
 	}
+	if orderNumber == "" {
+		uc.logger.Debug("no orders to process")
+		return
+	}
 
 	logger := uc.logger.WithField("order_number", orderNumber)
 
@@ -45,21 +49,23 @@ func (uc *useCase) processOrder(ctx context.Context) {
 }
 
 func (uc *useCase) workerIter(ctx context.Context) {
-	newCtx, cancel := context.WithTimeout(ctx, time.Duration(uc.cfg.WorkerTimeout))
+	newCtx, cancel := context.WithTimeout(ctx, time.Duration(uc.cfg.WorkerTimeout*int(time.Second)))
 	defer cancel()
 
-	select {
-	case <-ctx.Done():
-		return
-	default:
-		uc.processOrder(newCtx)
-	}
+	uc.processOrder(newCtx)
 }
 
 func (uc *useCase) MakeProcessorWorker(
 	ctx context.Context,
 ) {
+	ticker := time.NewTicker(time.Duration(time.Second))
+	defer ticker.Stop()
 	for {
-		uc.workerIter(ctx)
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			uc.workerIter(ctx)
+		}
 	}
 }

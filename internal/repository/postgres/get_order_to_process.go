@@ -2,10 +2,11 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/georgg2003/gophermart/pkg/errutils"
+	"github.com/jackc/pgx/v5"
 )
 
 func (p *postgres) GetOrderToProcess(
@@ -28,31 +29,30 @@ func (p *postgres) GetOrderToProcess(
 	}
 	defer tx.Rollback(ctx)
 
-	var orderNumber sql.NullString
+	var orderNumber string
 	err = tx.QueryRow(
 		ctx,
 		`SELECT number FROM (
 			SELECT number FROM orders 
 			WHERE status = 'NEW' 
-				OR (status = 'PROCESSING' AND NOW() - processing_since > INTERVAL $1) 
+				OR (status = 'PROCESSING' AND (NOW() - processing_since) > $1) 
 			LIMIT 1
 		) FOR UPDATE SKIP LOCKED`,
 		time.Duration(processRetryTimeout),
 	).Scan(&orderNumber)
 	if err != nil {
-		return "", errutils.Wrap(err, "failed to get order to process")
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", nil
+		}
+		return "", errutils.Wrap(err, "failed to select order to process")
 	}
-	if !orderNumber.Valid {
-		return "", nil
-	}
-	orderNumberStr := orderNumber.String
 
 	if _, err = tx.Exec(
 		ctx,
 		`UPDATE orders
 		SET status = 'PROCESSING', processing_since = NOW()
 		WHERE number = $1`,
-		orderNumberStr,
+		orderNumber,
 	); err != nil {
 		return "", errutils.Wrap(err, "failed to update order to process")
 	}
@@ -61,5 +61,5 @@ func (p *postgres) GetOrderToProcess(
 	if err != nil {
 		return "", errutils.Wrap(err, "failed to commit tx")
 	}
-	return orderNumberStr, nil
+	return orderNumber, nil
 }
