@@ -24,7 +24,7 @@ func (s *server) PostAPIUserOrders(c echo.Context) error {
 
 	if !luhn.ValidLuhn(orderNumber) {
 		s.logger.WithContext(ctx).WithError(err).Error("order number is not valid")
-		return c.String(http.StatusBadRequest, "order number is not valid")
+		return c.String(http.StatusUnprocessableEntity, "order number is not valid")
 	}
 
 	err = s.uc.UserCreateOrder(ctx, orderNumber)
