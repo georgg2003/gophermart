@@ -25,7 +25,7 @@ func (s *server) GetAPIUserOrders(c echo.Context) error {
 	ordersDTO := make([]OrderInfo, 0, len(orders))
 	for _, v := range orders {
 		ordersDTO = append(ordersDTO, OrderInfo{
-			Accrual:    v.Accrual.Major(),
+			Accrual:    v.Accrual.NullMajor(),
 			Number:     v.Number,
 			Status:     OrderInfoStatus(v.Status),
 			UploadedAt: v.UploadedAt,

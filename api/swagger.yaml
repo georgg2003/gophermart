@@ -34,7 +34,7 @@ components:
 
     OrderInfo:
       type: object
-      required: [number, accrual, status, uploaded_at]
+      required: [number, status, uploaded_at]
       properties:
         number:
           type: string

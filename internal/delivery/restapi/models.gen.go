@@ -33,7 +33,7 @@ type LoginRequest struct {
 
 // OrderInfo defines model for OrderInfo.
 type OrderInfo struct {
-	Accrual    float64         `json:"accrual"`
+	Accrual    *float64        `json:"accrual,omitempty"`
 	Number     string          `json:"number"`
 	Status     OrderInfoStatus `json:"status"`
 	UploadedAt time.Time       `json:"uploaded_at"`

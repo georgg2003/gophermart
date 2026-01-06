@@ -1,9 +1,19 @@
 package models
 
-import "math"
+import (
+	"math"
+)
 
 type Money struct {
 	AmountMinor int64
+}
+
+func (m *Money) NullMajor() *float64 {
+	if m == nil {
+		return nil
+	}
+	major := m.Major()
+	return &major
 }
 
 func (m Money) Major() float64 {
