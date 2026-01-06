@@ -20,7 +20,7 @@ type accrual struct {
 func (a *accrual) GetOrderAccrual(
 	ctx context.Context,
 	orderNumber string,
-) (resp *models.GetOrderAccrualResponse, err error) {
+) (*models.GetOrderAccrualResponse, error) {
 	r, err := a.client.R().
 		SetPathParam("number", orderNumber).
 		Get("/api/orders/{number}")
@@ -29,13 +29,14 @@ func (a *accrual) GetOrderAccrual(
 		a.logger.WithError(err).Error("request to accrual failed")
 		return nil, errutils.Wrap(err, "request to accrual failed")
 	}
+	var resp models.GetOrderAccrualResponse
 
-	if err = json.Unmarshal(r.Body(), resp); err != nil {
+	if err = json.Unmarshal(r.Body(), &resp); err != nil {
 		a.logger.WithError(err).Error("failed to unmarshall accrual response")
 		return nil, errutils.Wrap(err, "failed to unmarshall accrual response")
 	}
 
-	return resp, err
+	return &resp, err
 }
 
 func New(cfg *config.Config) repository.AccrualRepo {
