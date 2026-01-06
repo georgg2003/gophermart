@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/georgg2003/gophermart/internal/models"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/georgg2003/gophermart/pkg/errutils"
 )
@@ -32,7 +33,8 @@ func (p *postgres) ApplyOrderAccrual(
 	var userID sql.NullInt64
 	err = tx.QueryRow(
 		ctx,
-		`UPDATE orders SET status = 'PROCESSED' WHERE number = $2 RETURNING user_id`,
+		`UPDATE orders SET status = $1 WHERE number = $2 RETURNING user_id`,
+		models.StatusProcessed,
 		orderNumber,
 	).Scan(&userID)
 	if err != nil {
