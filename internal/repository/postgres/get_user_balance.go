@@ -32,7 +32,7 @@ func (p *postgres) GetUserBalance(
 				CASE
         	WHEN amount < 0 THEN amount
     		END
-			), 0) AS withdrawn 
+			), 0) * -1 AS withdrawn 
 			FROM transactions 
 			WHERE user_id = $1`,
 		userID,
