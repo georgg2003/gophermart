@@ -3,6 +3,7 @@ package accrual
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/georgg2003/gophermart/internal/models"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
@@ -16,6 +17,8 @@ type accrual struct {
 	client *resty.Client
 	logger *logrus.Logger
 }
+
+var ErrResponseNilBody = errors.New("accrual response has nil body")
 
 func (a *accrual) GetOrderAccrual(
 	ctx context.Context,
@@ -40,8 +43,8 @@ func (a *accrual) GetOrderAccrual(
 
 	body := r.Body()
 	if body == nil {
-		logger.Warn("accrual response has nil body")
-		return nil, nil
+		logger.Error("accrual response has nil body")
+		return nil, ErrResponseNilBody
 	}
 
 	if err = json.Unmarshal(r.Body(), resp); err != nil {
