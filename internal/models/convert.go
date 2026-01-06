@@ -1,10 +1,26 @@
 package models
 
+import "time"
+
 func NewWithdrawalFromDB(db WithdrawalDB) Withdrawal {
+	var order *string
+	if db.Order.Valid {
+		order = &db.Order.String
+	} else {
+		order = nil
+	}
+
+	var processedAt *time.Time
+	if db.ProcessedAt.Valid {
+		processedAt = &db.ProcessedAt.Time
+	} else {
+		processedAt = nil
+	}
+
 	return Withdrawal{
-		Order:       db.Order,
+		Order:       order,
 		Sum:         NewMoney(db.Amount),
-		ProcessedAt: db.ProcessedAt,
+		ProcessedAt: processedAt,
 	}
 }
 

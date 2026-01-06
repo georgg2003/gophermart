@@ -6,9 +6,9 @@ import (
 )
 
 type WithdrawalDB struct {
-	Order       *string
+	Order       sql.NullString
 	Amount      int64
-	ProcessedAt *time.Time `db:"processed_at"`
+	ProcessedAt sql.NullTime `db:"processed_at"`
 }
 
 type OrderDB struct {
