@@ -8,6 +8,7 @@ import (
 	"github.com/georgg2003/gophermart/internal/models"
 	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
 	"github.com/georgg2003/gophermart/pkg/errutils"
+	"github.com/sirupsen/logrus"
 )
 
 func passwordToHash(password string) string {
@@ -25,6 +26,11 @@ func (uc *useCase) UserRegister(
 	if err != nil {
 		return "", errutils.Wrap(err, "failed to create new user")
 	}
+	uc.logger.WithFields(
+		logrus.Fields{
+			"user_id": userID,
+		},
+	).Info("register success")
 
 	return uc.jwtHelper.NewAccessToken(userID)
 }
@@ -42,6 +48,11 @@ func (uc *useCase) UserLogin(
 	if userCredentials.PasswordHash != hash {
 		return "", ErrUserWrongPassword
 	}
+	uc.logger.WithFields(
+		logrus.Fields{
+			"user_id": userCredentials.ID,
+		},
+	).Info("login success")
 
 	return uc.jwtHelper.NewAccessToken(userCredentials.ID)
 }
@@ -54,6 +65,14 @@ func (uc *useCase) UserGetBalance(
 	if err != nil {
 		return nil, errutils.Wrap(err, "failed to get user balance")
 	}
+	uc.logger.WithFields(
+		logrus.Fields{
+			"user_id":   userID,
+			"balance":   balance.Current.Major(),
+			"withdrawn": balance.Withdrawn.Major(),
+		},
+	).Info("get balance success")
+
 	return balance, err
 }
 
@@ -68,6 +87,13 @@ func (uc *useCase) UserGetWithdrawals(
 	if len(withdrawals) == 0 {
 		return nil, ErrWidthdrawalsNotFound
 	}
+	uc.logger.WithFields(
+		logrus.Fields{
+			"user_id":     userID,
+			"withdrawals": withdrawals,
+		},
+	).Info("get withdrawals success")
+
 	return withdrawals, err
 }
 
@@ -82,6 +108,13 @@ func (uc *useCase) UserGetOrders(
 	if len(orders) == 0 {
 		return nil, ErrOrdersNotFound
 	}
+	uc.logger.WithFields(
+		logrus.Fields{
+			"user_id": userID,
+			"orders":  orders,
+		},
+	).Info("get orders success")
+
 	return orders, err
 }
 
@@ -94,6 +127,13 @@ func (uc *useCase) UserCreateOrder(
 	if err != nil {
 		err = errutils.Wrap(err, "failed to create order")
 	}
+	uc.logger.WithFields(
+		logrus.Fields{
+			"user_id":      userID,
+			"order_number": orderNumber,
+		},
+	).Info("create order success")
+
 	return err
 }
 
@@ -107,5 +147,12 @@ func (uc *useCase) UserCreateWithdrawal(
 	if err != nil {
 		err = errutils.Wrap(err, "failed to withdraw")
 	}
+	uc.logger.WithFields(
+		logrus.Fields{
+			"user_id": userID,
+			"amount":  amount.Major(),
+		},
+	).Info("success withdrawal")
+
 	return err
 }
