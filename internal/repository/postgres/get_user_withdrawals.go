@@ -25,11 +25,10 @@ func (p *postgres) GetUserWithdrawals(
 	rows, err := conn.Query(
 		ctx,
 		`SELECT
-			ord.number as order,
+			tr.order_number as order,
 			tr.amount as amount,
-			ord.processed_at as processed_at
+			tr.processed_at as processed_at
 		FROM transactions tr
-		LEFT JOIN orders ord ON ord.number = tr.order_number
 		WHERE tr.user_id = $1 AND tr.amount < 0
 		ORDER BY ord.uploaded_at DESC`,
 		userID,

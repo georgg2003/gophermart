@@ -30,7 +30,7 @@ func (p *postgres) GetUserOrders(
 			tr.amount as accrual,
 			ord.uploaded_at as uploaded_at
 		FROM orders ord
-		LEFT JOIN transactions tr on ord.number = tr.order_number
+		LEFT JOIN transactions tr ON ord.number = tr.order_number
 		WHERE ord.user_id = $1
 		ORDER BY ord.uploaded_at DESC`,
 		userID,
