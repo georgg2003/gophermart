@@ -23,7 +23,7 @@ var ErrResponseNilBody = errors.New("accrual response has nil body")
 func (a *accrual) GetOrderAccrual(
 	ctx context.Context,
 	orderNumber string,
-) (resp *models.GetOrderAccrualResponse, err error) {
+) (*models.GetOrderAccrualResponse, error) {
 	r, err := a.client.R().
 		SetPathParam("number", orderNumber).
 		Get("/api/orders/{number}")
@@ -47,12 +47,13 @@ func (a *accrual) GetOrderAccrual(
 		return nil, ErrResponseNilBody
 	}
 
-	if err = json.Unmarshal(body, resp); err != nil {
+	var resp models.GetOrderAccrualResponse
+	if err = json.Unmarshal(body, &resp); err != nil {
 		logger.WithError(err).Error("failed to unmarshall accrual response")
 		return nil, errutils.Wrap(err, "failed to unmarshall accrual response")
 	}
 
-	return resp, err
+	return &resp, err
 }
 
 func New(cfg *config.Config, logger *logrus.Logger) repository.AccrualRepo {
