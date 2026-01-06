@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/georgg2003/gophermart/pkg/errutils"
 	"github.com/jackc/pgx/v5"
@@ -39,7 +38,7 @@ func (p *postgres) GetOrderToProcess(
 			ORDER BY uploaded_at ASC
 			LIMIT 1
 		) FOR UPDATE SKIP LOCKED`,
-		time.Duration(processRetryTimeout*int(time.Second)),
+		processRetryTimeout,
 	).Scan(&orderNumber)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
