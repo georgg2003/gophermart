@@ -39,9 +39,9 @@ func (a *accrual) GetOrderAccrual(
 		return nil, errutils.Wrap(err, "request to accrual failed")
 	}
 
-	body := r.Body()
-	logger.WithField("response_body", body).Debug("accrual response body")
+	logger.WithField("response_body", r.String()).Debug("accrual response body")
 
+	body := r.Body()
 	if body == nil {
 		logger.Error("accrual response has nil body")
 		return nil, ErrResponseNilBody
