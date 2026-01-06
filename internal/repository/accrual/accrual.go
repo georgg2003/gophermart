@@ -30,7 +30,7 @@ func (a *accrual) GetOrderAccrual(
 		return nil, errutils.Wrap(err, "request to accrual failed")
 	}
 
-	if err = json.Unmarshal(r.Body(), &resp); err != nil {
+	if err = json.Unmarshal(r.Body(), resp); err != nil {
 		a.logger.WithError(err).Error("failed to unmarshall accrual response")
 		return nil, errutils.Wrap(err, "failed to unmarshall accrual response")
 	}
