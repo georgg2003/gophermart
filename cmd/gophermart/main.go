@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		logger.WithError(err).Fatal("failed to create postgres repository")
 	}
-	accrualRepo := accrual.New(cfg)
+	accrualRepo := accrual.New(cfg, logger)
 
 	usecase := usecase.New(cfg, logger, repository, accrualRepo)
 	delivery := restapi.NewServer(cfg, logger, usecase)
