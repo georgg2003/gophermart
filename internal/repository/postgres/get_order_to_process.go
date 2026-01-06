@@ -35,7 +35,7 @@ func (p *postgres) GetOrderToProcess(
 		`SELECT number FROM (
 			SELECT number FROM orders 
 			WHERE status = 'NEW' 
-				OR (status = 'PROCESSING' AND (NOW() - processing_since) > $1)
+				OR (status = 'PROCESSING' AND processing_since < (NOW() - $1))
 			ORDER BY uploaded_at ASC
 			LIMIT 1
 		) FOR UPDATE SKIP LOCKED`,

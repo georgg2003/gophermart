@@ -30,7 +30,7 @@ func (p *postgres) GetUserWithdrawals(
 			tr.processed_at as processed_at
 		FROM transactions tr
 		WHERE tr.user_id = $1 AND tr.amount < 0
-		ORDER BY ord.uploaded_at DESC`,
+		ORDER BY tr.processed_at DESC`,
 		userID,
 	)
 	if err != nil {
