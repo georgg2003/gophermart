@@ -11,25 +11,25 @@ import (
 type ServerInterface interface {
 	// Получение текущего баланса
 	// (GET /api/user/balance)
-	GetApiUserBalance(ctx echo.Context) error
+	GetAPIUserBalance(ctx echo.Context) error
 	// Списание баллов
 	// (POST /api/user/balance/withdraw)
-	PostApiUserBalanceWithdraw(ctx echo.Context) error
+	PostAPIUserBalanceWithdraw(ctx echo.Context) error
 	// Аутентификация пользователя
 	// (POST /api/user/login)
-	PostApiUserLogin(ctx echo.Context) error
+	PostAPIUserLogin(ctx echo.Context) error
 	// Получение списка заказов пользователя
 	// (GET /api/user/orders)
-	GetApiUserOrders(ctx echo.Context) error
+	GetAPIUserOrders(ctx echo.Context) error
 	// Загрузка номера заказа
 	// (POST /api/user/orders)
-	PostApiUserOrders(ctx echo.Context) error
+	PostAPIUserOrders(ctx echo.Context) error
 	// Регистрация пользователя
 	// (POST /api/user/register)
-	PostApiUserRegister(ctx echo.Context) error
+	PostAPIUserRegister(ctx echo.Context) error
 	// История списаний
 	// (GET /api/user/withdrawals)
-	GetApiUserWithdrawals(ctx echo.Context) error
+	GetAPIUserWithdrawals(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -37,76 +37,76 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// GetApiUserBalance converts echo context to params.
-func (w *ServerInterfaceWrapper) GetApiUserBalance(ctx echo.Context) error {
+// GetAPIUserBalance converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAPIUserBalance(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetApiUserBalance(ctx)
+	err = w.Handler.GetAPIUserBalance(ctx)
 	return err
 }
 
-// PostApiUserBalanceWithdraw converts echo context to params.
-func (w *ServerInterfaceWrapper) PostApiUserBalanceWithdraw(ctx echo.Context) error {
+// PostAPIUserBalanceWithdraw converts echo context to params.
+func (w *ServerInterfaceWrapper) PostAPIUserBalanceWithdraw(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PostApiUserBalanceWithdraw(ctx)
+	err = w.Handler.PostAPIUserBalanceWithdraw(ctx)
 	return err
 }
 
-// PostApiUserLogin converts echo context to params.
-func (w *ServerInterfaceWrapper) PostApiUserLogin(ctx echo.Context) error {
+// PostAPIUserLogin converts echo context to params.
+func (w *ServerInterfaceWrapper) PostAPIUserLogin(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PostApiUserLogin(ctx)
+	err = w.Handler.PostAPIUserLogin(ctx)
 	return err
 }
 
-// GetApiUserOrders converts echo context to params.
-func (w *ServerInterfaceWrapper) GetApiUserOrders(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetApiUserOrders(ctx)
-	return err
-}
-
-// PostApiUserOrders converts echo context to params.
-func (w *ServerInterfaceWrapper) PostApiUserOrders(ctx echo.Context) error {
+// GetAPIUserOrders converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAPIUserOrders(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PostApiUserOrders(ctx)
+	err = w.Handler.GetAPIUserOrders(ctx)
 	return err
 }
 
-// PostApiUserRegister converts echo context to params.
-func (w *ServerInterfaceWrapper) PostApiUserRegister(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PostApiUserRegister(ctx)
-	return err
-}
-
-// GetApiUserWithdrawals converts echo context to params.
-func (w *ServerInterfaceWrapper) GetApiUserWithdrawals(ctx echo.Context) error {
+// PostAPIUserOrders converts echo context to params.
+func (w *ServerInterfaceWrapper) PostAPIUserOrders(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetApiUserWithdrawals(ctx)
+	err = w.Handler.PostAPIUserOrders(ctx)
+	return err
+}
+
+// PostAPIUserRegister converts echo context to params.
+func (w *ServerInterfaceWrapper) PostAPIUserRegister(ctx echo.Context) error {
+	var err error
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PostAPIUserRegister(ctx)
+	return err
+}
+
+// GetAPIUserWithdrawals converts echo context to params.
+func (w *ServerInterfaceWrapper) GetAPIUserWithdrawals(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetAPIUserWithdrawals(ctx)
 	return err
 }
 
@@ -138,12 +138,12 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/api/user/balance", wrapper.GetApiUserBalance)
-	router.POST(baseURL+"/api/user/balance/withdraw", wrapper.PostApiUserBalanceWithdraw)
-	router.POST(baseURL+"/api/user/login", wrapper.PostApiUserLogin)
-	router.GET(baseURL+"/api/user/orders", wrapper.GetApiUserOrders)
-	router.POST(baseURL+"/api/user/orders", wrapper.PostApiUserOrders)
-	router.POST(baseURL+"/api/user/register", wrapper.PostApiUserRegister)
-	router.GET(baseURL+"/api/user/withdrawals", wrapper.GetApiUserWithdrawals)
+	router.GET(baseURL+"/api/user/balance", wrapper.GetAPIUserBalance)
+	router.POST(baseURL+"/api/user/balance/withdraw", wrapper.PostAPIUserBalanceWithdraw)
+	router.POST(baseURL+"/api/user/login", wrapper.PostAPIUserLogin)
+	router.GET(baseURL+"/api/user/orders", wrapper.GetAPIUserOrders)
+	router.POST(baseURL+"/api/user/orders", wrapper.PostAPIUserOrders)
+	router.POST(baseURL+"/api/user/register", wrapper.PostAPIUserRegister)
+	router.GET(baseURL+"/api/user/withdrawals", wrapper.GetAPIUserWithdrawals)
 
 }

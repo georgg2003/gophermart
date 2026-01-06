@@ -61,17 +61,17 @@ type WithdrawalInfo struct {
 	Sum         float64    `json:"sum"`
 }
 
-// PostApiUserOrdersTextBody defines parameters for PostApiUserOrders.
-type PostApiUserOrdersTextBody = string
+// PostAPIUserOrdersTextBody defines parameters for PostAPIUserOrders.
+type PostAPIUserOrdersTextBody = string
 
-// PostApiUserBalanceWithdrawJSONRequestBody defines body for PostApiUserBalanceWithdraw for application/json ContentType.
-type PostApiUserBalanceWithdrawJSONRequestBody = WithdrawRequest
+// PostAPIUserBalanceWithdrawJSONRequestBody defines body for PostAPIUserBalanceWithdraw for application/json ContentType.
+type PostAPIUserBalanceWithdrawJSONRequestBody = WithdrawRequest
 
-// PostApiUserLoginJSONRequestBody defines body for PostApiUserLogin for application/json ContentType.
-type PostApiUserLoginJSONRequestBody = LoginRequest
+// PostAPIUserLoginJSONRequestBody defines body for PostAPIUserLogin for application/json ContentType.
+type PostAPIUserLoginJSONRequestBody = LoginRequest
 
-// PostApiUserOrdersTextRequestBody defines body for PostApiUserOrders for text/plain ContentType.
-type PostApiUserOrdersTextRequestBody = PostApiUserOrdersTextBody
+// PostAPIUserOrdersTextRequestBody defines body for PostAPIUserOrders for text/plain ContentType.
+type PostAPIUserOrdersTextRequestBody = PostAPIUserOrdersTextBody
 
-// PostApiUserRegisterJSONRequestBody defines body for PostApiUserRegister for application/json ContentType.
-type PostApiUserRegisterJSONRequestBody = RegisterRequest
+// PostAPIUserRegisterJSONRequestBody defines body for PostAPIUserRegister for application/json ContentType.
+type PostAPIUserRegisterJSONRequestBody = RegisterRequest

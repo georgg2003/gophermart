@@ -86,6 +86,7 @@ paths:
   /api/user/register:
     post:
       summary: Регистрация пользователя
+      operationId: PostAPIUserRegister
       requestBody:
         required: true
         content:
@@ -101,6 +102,7 @@ paths:
   /api/user/login:
     post:
       summary: Аутентификация пользователя
+      operationId: PostAPIUserLogin
       requestBody:
         required: true
         content:
@@ -116,6 +118,7 @@ paths:
   /api/user/orders:
     post:
       summary: Загрузка номера заказа
+      operationId: PostAPIUserOrders
       security:
         - bearerAuth: []
       requestBody:
@@ -135,6 +138,7 @@ paths:
 
     get:
       summary: Получение списка заказов пользователя
+      operationId: GetAPIUserOrders
       security:
         - bearerAuth: []
       responses:
@@ -153,6 +157,7 @@ paths:
   /api/user/balance:
     get:
       summary: Получение текущего баланса
+      operationId: GetAPIUserBalance
       security:
         - bearerAuth: []
       responses:
@@ -168,6 +173,7 @@ paths:
   /api/user/balance/withdraw:
     post:
       summary: Списание баллов
+      operationId: PostAPIUserBalanceWithdraw
       security:
         - bearerAuth: []
       requestBody:
@@ -186,6 +192,7 @@ paths:
   /api/user/withdrawals:
     get:
       summary: История списаний
+      operationId: GetAPIUserWithdrawals
       security:
         - bearerAuth: []
       responses:

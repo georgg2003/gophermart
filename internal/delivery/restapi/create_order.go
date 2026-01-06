@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (s *server) PostApiUserOrders(c echo.Context) error {
+func (s *server) PostAPIUserOrders(c echo.Context) error {
 	req := c.Request()
 	defer req.Body.Close()
 	ctx := req.Context()
