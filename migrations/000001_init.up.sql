@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS orders (
   number TEXT NOT NULL UNIQUE,
   status TEXT NOT NULL DEFAULT 'NEW' CHECK (status in ('NEW', 'PROCESSING', 'INVALID', 'PROCESSED')),
   uploaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  processed_at TIMESTAMPTZ NULL
+  processed_at TIMESTAMPTZ NULL,
   processing_since TIMESTAMPTZ NULL
 );
 
