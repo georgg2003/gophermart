@@ -33,6 +33,6 @@ type Withdrawal struct {
 type Order struct {
 	Number     string
 	Status     OrderStatus
-	Accrual    Money
+	Accrual    *Money
 	UploadedAt time.Time
 }

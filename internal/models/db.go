@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type WithdrawalDB struct {
 	Order       *string
@@ -11,6 +14,6 @@ type WithdrawalDB struct {
 type OrderDB struct {
 	Number     string
 	Status     OrderStatus
-	Accrual    int64
+	Accrual    sql.NullInt64
 	UploadedAt time.Time `db:"uploaded_at"`
 }

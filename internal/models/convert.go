@@ -17,10 +17,17 @@ func NewWithdrawalsFromDB(db []WithdrawalDB) []Withdrawal {
 }
 
 func NewOrderFromDB(db OrderDB) Order {
+	var accrual *Money
+	if db.Accrual.Valid {
+		money := NewMoney(db.Accrual.Int64)
+		accrual = &money
+	} else {
+		accrual = nil
+	}
 	return Order{
 		Number:     db.Number,
 		Status:     db.Status,
-		Accrual:    NewMoney(db.Accrual),
+		Accrual:    accrual,
 		UploadedAt: db.UploadedAt,
 	}
 }
