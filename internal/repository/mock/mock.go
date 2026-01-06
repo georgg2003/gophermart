@@ -99,18 +99,18 @@ func (mr *MockRepositoryMockRecorder) CreateUserWithdrawal(ctx, userID, orderNum
 }
 
 // GetOrderToProcess mocks base method.
-func (m *MockRepository) GetOrderToProcess(ctx context.Context) (string, error) {
+func (m *MockRepository) GetOrderToProcess(ctx context.Context, processRetryTimeout int) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOrderToProcess", ctx)
+	ret := m.ctrl.Call(m, "GetOrderToProcess", ctx, processRetryTimeout)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetOrderToProcess indicates an expected call of GetOrderToProcess.
-func (mr *MockRepositoryMockRecorder) GetOrderToProcess(ctx any) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetOrderToProcess(ctx, processRetryTimeout any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderToProcess", reflect.TypeOf((*MockRepository)(nil).GetOrderToProcess), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderToProcess", reflect.TypeOf((*MockRepository)(nil).GetOrderToProcess), ctx, processRetryTimeout)
 }
 
 // GetUserBalance mocks base method.
