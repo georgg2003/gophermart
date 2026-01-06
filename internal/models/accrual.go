@@ -12,5 +12,5 @@ const (
 type GetOrderAccrualResponse struct {
 	Order   string
 	Status  AccrualOrderStatus
-	Accrual int
+	Accrual float64
 }

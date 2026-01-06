@@ -38,7 +38,11 @@ func (uc *useCase) processOrder(ctx context.Context) {
 
 	switch resp.Status {
 	case models.AccrualStatusProcessed:
-		err = uc.repo.ApplyOrderAccrual(ctx, resp.Order, resp.Accrual)
+		err = uc.repo.ApplyOrderAccrual(
+			ctx,
+			resp.Order,
+			int(models.NewMoneyFromMajor(resp.Accrual).AmountMinor),
+		)
 	case models.AccrualStatusInvalid:
 		err = uc.repo.SetOrderStatus(ctx, resp.Order, models.StatusInvalid)
 	}
