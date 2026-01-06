@@ -26,7 +26,7 @@ func (p *postgres) GetUserWithdrawals(
 		ctx,
 		`SELECT
 			tr.order_number as order,
-			tr.amount as amount,
+			tr.amount * -1 as amount,
 			tr.processed_at as processed_at
 		FROM transactions tr
 		WHERE tr.user_id = $1 AND tr.amount < 0
