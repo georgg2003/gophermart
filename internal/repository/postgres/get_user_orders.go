@@ -25,7 +25,7 @@ func (p *postgres) GetUserOrders(
 	rows, err := conn.Query(
 		ctx,
 		`SELECT
-			ord.number as order,
+			ord.number as number,
 			ord.status as status,
 			tr.amount as accrual,
 			ord.uploaded_at as uploaded_at
@@ -36,7 +36,7 @@ func (p *postgres) GetUserOrders(
 		userID,
 	)
 	if err != nil {
-		err = errutils.Wrap(err, "failed to get user orders")
+		err = errutils.Wrap(err, "failed to select user orders")
 		return nil, err
 	}
 

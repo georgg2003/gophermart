@@ -77,7 +77,7 @@ func (uc *useCase) UserGetOrders(
 	userID := contextlib.MustGetUserID(ctx, uc.logger)
 	orders, err = uc.repo.GetUserOrders(ctx, userID)
 	if err != nil {
-		return nil, errutils.Wrap(err, "failed to get user withdrawals")
+		return nil, errutils.Wrap(err, "failed to get user orders")
 	}
 	if len(orders) == 0 {
 		return nil, ErrOrdersNotFound
