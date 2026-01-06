@@ -24,14 +24,19 @@ func (a *accrual) GetOrderAccrual(
 	r, err := a.client.R().
 		SetPathParam("number", orderNumber).
 		Get("/api/orders/{number}")
-
+	logger := a.logger.WithField("order_number", orderNumber)
+	logger.WithField("trace", r.Request.TraceInfo()).Debug("request to accrual service")
 	if err != nil {
-		a.logger.WithError(err).Error("request to accrual failed")
+		logger.WithError(err).Error("request to accrual failed")
 		return nil, errutils.Wrap(err, "request to accrual failed")
 	}
-
+	body := r.Body()
+	if body == nil {
+		logger.Warn("accrual response has nil body")
+		return nil, nil
+	}
 	if err = json.Unmarshal(r.Body(), resp); err != nil {
-		a.logger.WithError(err).Error("failed to unmarshall accrual response")
+		logger.WithError(err).Error("failed to unmarshall accrual response")
 		return nil, errutils.Wrap(err, "failed to unmarshall accrual response")
 	}
 
@@ -39,8 +44,7 @@ func (a *accrual) GetOrderAccrual(
 }
 
 func New(cfg *config.Config, logger *logrus.Logger) repository.AccrualRepo {
-	client := resty.New()
-	client.SetBaseURL(cfg.AccrualSysAddr)
+	client := resty.New().SetBaseURL(cfg.AccrualSysAddr).EnableTrace()
 	return &accrual{
 		client: client,
 		logger: logger,
