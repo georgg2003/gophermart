@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 CREATE INDEX IF NOT EXISTS idx_orders_user
-ON orders (user_id);
+ON orders (user_id, uploaded_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_orders_status_incomplete
 ON orders (uploaded_at ASC)
@@ -40,9 +40,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS transactions_order_number_unique
 ON transactions (order_number)
 WHERE order_number is not NULL;
 
-CREATE INDEX IF NOT EXISTS idx_transactions_user_id_withdrawals
+CREATE INDEX IF NOT EXISTS idx_transactions_user_withdrawals
 ON transactions (user_id, uploaded_at DESC)
 WHERE amount < 0;
 
-CREATE INDEX IF NOT EXISTS idx_transactions_user_id
+CREATE INDEX IF NOT EXISTS idx_transactions_user
 ON transactions (user_id);
