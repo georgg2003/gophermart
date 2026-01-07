@@ -4,7 +4,6 @@ import (
 	"flag"
 	"os"
 
-	"github.com/georgg2003/gophermart/pkg/errutils"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/mitchellh/mapstructure"
 	"gopkg.in/yaml.v2"
@@ -20,19 +19,14 @@ type Config struct {
 	ProcessRetryTimeout int    `mapstructure:"process_retry_timeout" env:"PROCESS_RETRY_TIMEOUT"`
 }
 
-func New() (*Config, error) {
-	conf := &Config{
+func New() *Config {
+	return &Config{
 		RunAddr:             "localhost:8080",
 		AccrualSysAddr:      "http://localhost:8000",
 		Workers:             3,
 		WorkerTimeout:       5,
 		ProcessRetryTimeout: 30,
 	}
-	if err := conf.ReadFromEnv(); err != nil {
-		return nil, errutils.Wrap(err, "failed to read config from env")
-	}
-	conf.ReadFromFlags()
-	return conf, nil
 }
 
 func (c *Config) ReadFromYaml() error {

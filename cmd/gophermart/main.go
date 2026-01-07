@@ -25,10 +25,11 @@ func main() {
 	logger.SetFormatter(&logrus.JSONFormatter{})
 	logger.SetLevel(logrus.DebugLevel)
 
-	cfg, err := config.New()
-	if err != nil {
-		logger.WithError(err).Fatal("failed to create config")
+	cfg := config.New()
+	if err := cfg.ReadFromEnv(); err != nil {
+		logger.WithError(err).Fatal("failed to read config from env")
 	}
+	cfg.ReadFromFlags()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -77,7 +78,7 @@ func main() {
 		}),
 		echoMiddleware.Recover(),
 		middleware.LoggingMiddleware(logger),
-		middleware.NewAuthMiddleware(cfg, logger, func(c echo.Context) bool {
+		middleware.NewAuthMiddleware(cfg.JWTSecretKey, logger, func(c echo.Context) bool {
 			if c.Path() == "/api/user/login" || c.Path() == "/api/user/register" {
 				return true
 			}

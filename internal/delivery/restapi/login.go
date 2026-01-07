@@ -36,7 +36,5 @@ func (s *server) PostAPIUserLogin(c echo.Context) error {
 	s.logger.WithField("login", loginRequest.Login).Info("successfully logged in user")
 
 	c.Response().Header().Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", accessToken))
-	c.Response().WriteHeader(http.StatusOK)
-
-	return nil
+	return c.String(http.StatusOK, "successfully logged in")
 }

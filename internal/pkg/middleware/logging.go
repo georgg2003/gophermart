@@ -34,13 +34,13 @@ func LoggingMiddleware(logger *logrus.Logger) echo.MiddlewareFunc {
 			})
 
 			if err != nil {
-				c.Error(err)
 				entry.WithField("error", err).Error("request completed with error")
+				return err
 			} else {
 				entry.Info("request completed")
 			}
 
-			return err
+			return nil
 		}
 	}
 }

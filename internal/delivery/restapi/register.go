@@ -35,6 +35,5 @@ func (s *server) PostAPIUserRegister(c echo.Context) error {
 	s.logger.WithField("login", registerRequest.Login).Info("successfully registered user")
 
 	c.Response().Header().Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", accessToken))
-	c.Response().WriteHeader(http.StatusOK)
-	return nil
+	return c.String(http.StatusOK, "successfully registered")
 }

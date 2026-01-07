@@ -2,26 +2,20 @@ package usecase
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 
 	"github.com/georgg2003/gophermart/internal/models"
 	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
 	"github.com/georgg2003/gophermart/pkg/errutils"
+	"github.com/georgg2003/gophermart/pkg/gotils.go"
 	"github.com/sirupsen/logrus"
 )
-
-func passwordToHash(password string) string {
-	hash := sha256.New()
-	return hex.EncodeToString(hash.Sum([]byte(password)))
-}
 
 func (uc *useCase) UserRegister(
 	ctx context.Context,
 	login string,
 	password string,
 ) (accessToken string, err error) {
-	hash := passwordToHash(password)
+	hash := gotils.HashPassword(password)
 	userID, err := uc.repo.CreateUser(ctx, login, hash)
 	if err != nil {
 		return "", errutils.Wrap(err, "failed to create new user")
@@ -40,7 +34,7 @@ func (uc *useCase) UserLogin(
 	login string,
 	password string,
 ) (accessToken string, err error) {
-	hash := passwordToHash(password)
+	hash := gotils.HashPassword(password)
 	userCredentials, err := uc.repo.GetUserByLogin(ctx, login)
 	if err != nil {
 		return "", errutils.Wrap(err, "failed to get user by login")

@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/georgg2003/gophermart/internal/pkg/config"
 	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
 	"github.com/labstack/echo/v4"
@@ -12,14 +11,14 @@ import (
 )
 
 func NewAuthMiddleware(
-	cfg *config.Config,
+	secretKey string,
 	l *logrus.Logger,
 	skipper func(c echo.Context) bool,
 ) echo.MiddlewareFunc {
-	helper := jwthelper.New([]byte(cfg.JWTSecretKey))
+	helper := jwthelper.New([]byte(secretKey))
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			if skipper(c) {
+			if skipper != nil && skipper(c) {
 				return next(c)
 			}
 			req := c.Request()
@@ -29,20 +28,17 @@ func NewAuthMiddleware(
 			token := req.Header.Get(echo.HeaderAuthorization)
 			if token == "" {
 				l.WithContext(ctx).Error("authorization header is empty")
-				c.Response().WriteHeader(http.StatusUnauthorized)
-				return nil
+				return c.String(http.StatusUnauthorized, "No auth")
 			}
 			if !strings.Contains(token, "Bearer ") {
 				l.WithContext(ctx).Error("token is not bearer")
-				c.String(http.StatusUnauthorized, "Invalid token")
-				return nil
+				return c.String(http.StatusUnauthorized, "Invalid token")
 			}
 			token = strings.Split(token, "Bearer ")[1]
 			userID, err := helper.ReadAccessToken(token)
 			if err != nil {
 				l.WithContext(ctx).WithError(err).Error("got an invalid token")
-				c.String(http.StatusUnauthorized, "Invalid token")
-				return err
+				return c.String(http.StatusUnauthorized, "Invalid token")
 			}
 
 			newCtx := contextlib.SetUserID(ctx, userID)
