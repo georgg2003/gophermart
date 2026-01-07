@@ -52,7 +52,7 @@ test:
 
 coverage: 
 	$(GO) test $(PKG) -covermode=count -coverpkg=$(PKG) -coverprofile=coverage.out
-	grep -vE "(mock\.go|/mock/)" coverage.out > coverage.filtered.out
+	grep -vE "(mock\.go|/mock/|/*.gen.go)" coverage.out > coverage.filtered.out
 	mv coverage.filtered.out coverage.out
 	$(GO) tool cover -func=coverage.out
 

@@ -65,7 +65,7 @@ func runRegisterTestCase(
 		require.NoError(t, err)
 
 		require.NoError(t, err)
-		assert.Equal(t, tc.response, body)
+		assert.Equal(t, string(tc.response), string(body))
 
 		if res.StatusCode == http.StatusOK {
 			token := res.Header.Get(echo.HeaderAuthorization)
