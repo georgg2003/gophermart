@@ -1,97 +1,28 @@
 package restapi_test
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/models"
-	"github.com/georgg2003/gophermart/internal/pkg/config"
-	"github.com/georgg2003/gophermart/internal/repository/mock"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/georgg2003/gophermart/pkg/gotils.go"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/mock/gomock"
 )
 
-const loginPath = "/login"
-
-type LoginTestCase struct {
-	name        string
-	body        []byte
-	statusCode  int
-	response    []byte
-	mockFunc    func(*http.Request)
-	errExpected bool
-}
-
-func runLoginTestCase(
-	tc LoginTestCase,
-	server restapi.ServerInterface,
-	helper *jwthelper.JWTHelper,
-) func(t *testing.T) {
-	return func(t *testing.T) {
-		buf := bytes.NewBuffer(tc.body)
-		req := httptest.NewRequest(http.MethodGet, loginPath, buf)
-
-		resp := httptest.NewRecorder()
-
-		c := echo.New().NewContext(req, resp)
-
-		if tc.mockFunc != nil {
-			tc.mockFunc(req)
-		}
-
-		err := server.PostAPIUserLogin(c)
-		if tc.errExpected {
-			assert.Error(t, err)
-			return
-		}
-		require.NoError(t, err)
-
-		res := resp.Result()
-		assert.Equal(t, tc.statusCode, res.StatusCode)
-
-		body, err := io.ReadAll(res.Body)
-		require.NoError(t, err)
-
-		require.NoError(t, err)
-		assert.Equal(t, string(tc.response), string(body))
-
-		if res.StatusCode == http.StatusOK {
-			token := res.Header.Get(echo.HeaderAuthorization)
-			assert.NotEmpty(t, token)
-			token = strings.Split(token, "Bearer ")[1]
-			userID, err := helper.ReadAccessToken(token)
-			assert.NoError(t, err)
-			assert.Equal(t, userID, testUserID)
-		}
-	}
-}
-
 func TestPostAPIUserLogin(t *testing.T) {
-	cfg := config.New()
-
-	logger := logrus.New()
+	testApp := newTestApp(t)
+	cfg := testApp.cfg
+	repo := testApp.repo
 
 	helper := jwthelper.New([]byte(cfg.JWTSecretKey))
-
-	ctrl := gomock.NewController(t)
-	repo := mock.NewMockRepository(ctrl)
-	accrualRepo := mock.NewMockAccrualRepo(ctrl)
-
-	uc := usecase.New(cfg, logger, repo, accrualRepo)
-	server := restapi.NewServer(cfg, logger, uc)
 
 	creds := restapi.LoginRequest{
 		Login:    "login",
@@ -100,7 +31,7 @@ func TestPostAPIUserLogin(t *testing.T) {
 	credsBody, err := json.Marshal(creds)
 	require.NoError(t, err)
 
-	for _, tc := range []LoginTestCase{
+	for _, tc := range []DeliveryTestCase{
 		{
 			name:       "success login",
 			body:       credsBody,
@@ -115,6 +46,16 @@ func TestPostAPIUserLogin(t *testing.T) {
 					Login:        creds.Login,
 					PasswordHash: gotils.HashPassword(creds.Password),
 				}, nil)
+			},
+			validateResponse: func(t *testing.T, res *http.Response) {
+				if res.StatusCode == http.StatusOK {
+					token := res.Header.Get(echo.HeaderAuthorization)
+					assert.NotEmpty(t, token)
+					token = strings.Split(token, "Bearer ")[1]
+					userID, err := helper.ReadAccessToken(token)
+					assert.NoError(t, err)
+					assert.Equal(t, userID, testUserID)
+				}
 			},
 		},
 		{
@@ -163,6 +104,6 @@ func TestPostAPIUserLogin(t *testing.T) {
 			response:   []byte("wrong request format"),
 		},
 	} {
-		t.Run(tc.name, runLoginTestCase(tc, server, helper))
+		t.Run(tc.name, runDeliveryTestCase(tc, testApp.server.PostAPIUserLogin))
 	}
 }

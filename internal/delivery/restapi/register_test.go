@@ -1,96 +1,25 @@
 package restapi_test
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
-	"github.com/georgg2003/gophermart/internal/pkg/config"
-	"github.com/georgg2003/gophermart/internal/repository/mock"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/georgg2003/gophermart/pkg/gotils.go"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/mock/gomock"
 )
 
-const registerPath = "/register"
-
-type RegisterTestCase struct {
-	name        string
-	body        []byte
-	statusCode  int
-	response    []byte
-	mockFunc    func(*http.Request)
-	errExpected bool
-}
-
-func runRegisterTestCase(
-	tc RegisterTestCase,
-	server restapi.ServerInterface,
-	helper *jwthelper.JWTHelper,
-) func(t *testing.T) {
-	return func(t *testing.T) {
-		buf := bytes.NewBuffer(tc.body)
-		req := httptest.NewRequest(http.MethodGet, registerPath, buf)
-
-		resp := httptest.NewRecorder()
-
-		c := echo.New().NewContext(req, resp)
-
-		if tc.mockFunc != nil {
-			tc.mockFunc(req)
-		}
-
-		err := server.PostAPIUserRegister(c)
-		if tc.errExpected {
-			assert.Error(t, err)
-			return
-		}
-		require.NoError(t, err)
-
-		res := resp.Result()
-		assert.Equal(t, tc.statusCode, res.StatusCode)
-
-		body, err := io.ReadAll(res.Body)
-		require.NoError(t, err)
-
-		require.NoError(t, err)
-		assert.Equal(t, string(tc.response), string(body))
-
-		if res.StatusCode == http.StatusOK {
-			token := res.Header.Get(echo.HeaderAuthorization)
-			assert.NotEmpty(t, token)
-			token = strings.Split(token, "Bearer ")[1]
-			userID, err := helper.ReadAccessToken(token)
-			assert.NoError(t, err)
-			assert.Equal(t, userID, testUserID)
-		}
-	}
-}
-
 func TestPostAPIUserRegister(t *testing.T) {
-	cfg := config.New()
+	testApp := newTestApp(t)
 
-	logger := logrus.New()
-
-	helper := jwthelper.New([]byte(cfg.JWTSecretKey))
-
-	ctrl := gomock.NewController(t)
-	repo := mock.NewMockRepository(ctrl)
-	accrualRepo := mock.NewMockAccrualRepo(ctrl)
-
-	uc := usecase.New(cfg, logger, repo, accrualRepo)
-	server := restapi.NewServer(cfg, logger, uc)
+	helper := jwthelper.New([]byte(testApp.cfg.JWTSecretKey))
 
 	creds := restapi.RegisterRequest{
 		Login:    "login",
@@ -99,22 +28,32 @@ func TestPostAPIUserRegister(t *testing.T) {
 	credsBody, err := json.Marshal(creds)
 	require.NoError(t, err)
 
-	for _, tc := range []RegisterTestCase{
+	for _, tc := range []DeliveryTestCase{
 		{
 			name:       "success register",
 			body:       credsBody,
 			statusCode: http.StatusOK,
 			response:   []byte("successfully registered"),
 			mockFunc: func(req *http.Request) {
-				repo.EXPECT().CreateUser(
+				testApp.repo.EXPECT().CreateUser(
 					req.Context(),
 					creds.Login,
 					gotils.HashPassword(creds.Password),
 				).Return(testUserID, nil)
 			},
+			validateResponse: func(t *testing.T, res *http.Response) {
+				if res.StatusCode == http.StatusOK {
+					token := res.Header.Get(echo.HeaderAuthorization)
+					assert.NotEmpty(t, token)
+					token = strings.Split(token, "Bearer ")[1]
+					userID, err := helper.ReadAccessToken(token)
+					assert.NoError(t, err)
+					assert.Equal(t, userID, testUserID)
+				}
+			},
 		},
 		{
-			name:       "success register",
+			name:       "no body",
 			statusCode: http.StatusBadRequest,
 			response:   []byte("wrong request format"),
 		},
@@ -124,7 +63,7 @@ func TestPostAPIUserRegister(t *testing.T) {
 			statusCode: http.StatusConflict,
 			response:   []byte("user already exists"),
 			mockFunc: func(req *http.Request) {
-				repo.EXPECT().CreateUser(
+				testApp.repo.EXPECT().CreateUser(
 					req.Context(),
 					creds.Login,
 					gotils.HashPassword(creds.Password),
@@ -136,7 +75,7 @@ func TestPostAPIUserRegister(t *testing.T) {
 			body:       credsBody,
 			statusCode: http.StatusInternalServerError,
 			mockFunc: func(req *http.Request) {
-				repo.EXPECT().CreateUser(
+				testApp.repo.EXPECT().CreateUser(
 					req.Context(),
 					creds.Login,
 					gotils.HashPassword(creds.Password),
@@ -145,6 +84,6 @@ func TestPostAPIUserRegister(t *testing.T) {
 			errExpected: true,
 		},
 	} {
-		t.Run(tc.name, runRegisterTestCase(tc, server, helper))
+		t.Run(tc.name, runDeliveryTestCase(tc, testApp.server.PostAPIUserRegister))
 	}
 }
