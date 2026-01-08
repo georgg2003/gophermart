@@ -2,12 +2,12 @@ package restapi_test
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strings"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
+	"github.com/georgg2003/gophermart/internal/pkg/testutils"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/georgg2003/gophermart/pkg/gotils.go"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
@@ -17,9 +17,9 @@ import (
 )
 
 func TestPostAPIUserRegister(t *testing.T) {
-	testApp := newTestApp(t)
+	testApp := testutils.NewTestApp(t)
 
-	helper := jwthelper.New([]byte(testApp.cfg.JWTSecretKey))
+	helper := jwthelper.New([]byte(testApp.Cfg.JWTSecretKey))
 
 	creds := restapi.RegisterRequest{
 		Login:    "login",
@@ -35,7 +35,7 @@ func TestPostAPIUserRegister(t *testing.T) {
 			statusCode: http.StatusOK,
 			response:   []byte("successfully registered"),
 			mockFunc: func(req *http.Request) {
-				testApp.repo.EXPECT().CreateUser(
+				testApp.Repo.EXPECT().CreateUser(
 					req.Context(),
 					creds.Login,
 					gotils.HashPassword(creds.Password),
@@ -63,7 +63,7 @@ func TestPostAPIUserRegister(t *testing.T) {
 			statusCode: http.StatusConflict,
 			response:   []byte("user already exists"),
 			mockFunc: func(req *http.Request) {
-				testApp.repo.EXPECT().CreateUser(
+				testApp.Repo.EXPECT().CreateUser(
 					req.Context(),
 					creds.Login,
 					gotils.HashPassword(creds.Password),
@@ -75,15 +75,15 @@ func TestPostAPIUserRegister(t *testing.T) {
 			body:       credsBody,
 			statusCode: http.StatusInternalServerError,
 			mockFunc: func(req *http.Request) {
-				testApp.repo.EXPECT().CreateUser(
+				testApp.Repo.EXPECT().CreateUser(
 					req.Context(),
 					creds.Login,
 					gotils.HashPassword(creds.Password),
-				).Return(int64(-1), errors.New("some error"))
+				).Return(int64(-1), testutils.UnexpectedError)
 			},
 			errExpected: true,
 		},
 	} {
-		t.Run(tc.name, runDeliveryTestCase(tc, testApp.server.PostAPIUserRegister))
+		t.Run(tc.name, runDeliveryTestCase(tc, testApp.Server.PostAPIUserRegister))
 	}
 }

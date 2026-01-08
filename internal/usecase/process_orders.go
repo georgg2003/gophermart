@@ -67,6 +67,7 @@ func (uc *useCase) MakeProcessorWorker(
 	for {
 		select {
 		case <-ctx.Done():
+			uc.logger.Info("shutting down processor worker")
 			return
 		case <-ticker.C:
 			uc.workerIter(ctx)

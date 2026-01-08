@@ -2,13 +2,13 @@ package restapi_test
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strings"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/models"
+	"github.com/georgg2003/gophermart/internal/pkg/testutils"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/georgg2003/gophermart/pkg/gotils.go"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
@@ -18,9 +18,9 @@ import (
 )
 
 func TestPostAPIUserLogin(t *testing.T) {
-	testApp := newTestApp(t)
-	cfg := testApp.cfg
-	repo := testApp.repo
+	testApp := testutils.NewTestApp(t)
+	cfg := testApp.Cfg
+	repo := testApp.Repo
 
 	helper := jwthelper.New([]byte(cfg.JWTSecretKey))
 
@@ -94,7 +94,7 @@ func TestPostAPIUserLogin(t *testing.T) {
 				repo.EXPECT().GetUserByLogin(
 					req.Context(),
 					creds.Login,
-				).Return(nil, errors.New("some error"))
+				).Return(nil, testutils.UnexpectedError)
 			},
 			errExpected: true,
 		},
@@ -104,6 +104,6 @@ func TestPostAPIUserLogin(t *testing.T) {
 			response:   []byte("wrong request format"),
 		},
 	} {
-		t.Run(tc.name, runDeliveryTestCase(tc, testApp.server.PostAPIUserLogin))
+		t.Run(tc.name, runDeliveryTestCase(tc, testApp.Server.PostAPIUserLogin))
 	}
 }

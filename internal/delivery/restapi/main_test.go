@@ -7,20 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/georgg2003/gophermart/internal/delivery/restapi"
-	"github.com/georgg2003/gophermart/internal/pkg/config"
 	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
-	"github.com/georgg2003/gophermart/internal/repository/mock"
-	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/mock/gomock"
 )
 
 const testUserID = int64(1)
-const testOrderNumber = "12345678903"
 
 type DeliveryTestCase struct {
 	name             string
@@ -73,31 +66,5 @@ func runDeliveryTestCase(
 		if tc.validateResponse != nil {
 			tc.validateResponse(t, res)
 		}
-	}
-}
-
-type testApp struct {
-	cfg         *config.Config
-	repo        *mock.MockRepository
-	accrualRepo *mock.MockAccrualRepo
-	server      restapi.ServerInterface
-}
-
-func newTestApp(t *testing.T) *testApp {
-	cfg := config.New()
-	logger := logrus.New()
-
-	ctrl := gomock.NewController(t)
-	repo := mock.NewMockRepository(ctrl)
-	accrualRepo := mock.NewMockAccrualRepo(ctrl)
-
-	uc := usecase.New(cfg, logger, repo, accrualRepo)
-	server := restapi.NewServer(cfg, logger, uc)
-
-	return &testApp{
-		cfg:         cfg,
-		repo:        repo,
-		accrualRepo: accrualRepo,
-		server:      server,
 	}
 }

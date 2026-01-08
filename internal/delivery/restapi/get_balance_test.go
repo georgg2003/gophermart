@@ -2,18 +2,18 @@ package restapi_test
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/models"
+	"github.com/georgg2003/gophermart/internal/pkg/testutils"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetAPIUserBalance(t *testing.T) {
-	app := newTestApp(t)
-	repo := app.repo
+	app := testutils.NewTestApp(t)
+	repo := app.Repo
 
 	current := models.NewMoney(10000)
 	withdrawn := models.NewMoney(1000)
@@ -47,11 +47,11 @@ func TestGetAPIUserBalance(t *testing.T) {
 				repo.EXPECT().GetUserBalance(
 					req.Context(),
 					testUserID,
-				).Return(nil, errors.New("some error"))
+				).Return(nil, testutils.UnexpectedError)
 			},
 			errExpected: true,
 		},
 	} {
-		t.Run(tc.name, runDeliveryTestCase(tc, app.server.GetAPIUserBalance))
+		t.Run(tc.name, runDeliveryTestCase(tc, app.Server.GetAPIUserBalance))
 	}
 }

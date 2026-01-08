@@ -2,24 +2,24 @@ package restapi_test
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/models"
+	"github.com/georgg2003/gophermart/internal/pkg/testutils"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/stretchr/testify/require"
 )
 
 func TestPostAPIUserBalanceWithdraw(t *testing.T) {
-	app := newTestApp(t)
-	repo := app.repo
+	app := testutils.NewTestApp(t)
+	repo := app.Repo
 
 	withdrawMoney := models.NewMoney(10000)
 
 	req := restapi.WithdrawRequest{
-		Order: testOrderNumber,
+		Order: testutils.TestOrderNumber,
 		Sum:   withdrawMoney.Major(),
 	}
 	reqBody, err := json.Marshal(req)
@@ -41,7 +41,7 @@ func TestPostAPIUserBalanceWithdraw(t *testing.T) {
 				repo.EXPECT().CreateUserWithdrawal(
 					req.Context(),
 					testUserID,
-					testOrderNumber,
+					testutils.TestOrderNumber,
 					withdrawMoney.AmountMinor,
 				).Return(nil)
 			},
@@ -66,7 +66,7 @@ func TestPostAPIUserBalanceWithdraw(t *testing.T) {
 				repo.EXPECT().CreateUserWithdrawal(
 					req.Context(),
 					testUserID,
-					testOrderNumber,
+					testutils.TestOrderNumber,
 					withdrawMoney.AmountMinor,
 				).Return(usecase.ErrNotEnoughBalance)
 			},
@@ -80,7 +80,7 @@ func TestPostAPIUserBalanceWithdraw(t *testing.T) {
 				repo.EXPECT().CreateUserWithdrawal(
 					req.Context(),
 					testUserID,
-					testOrderNumber,
+					testutils.TestOrderNumber,
 					withdrawMoney.AmountMinor,
 				).Return(usecase.ErrWithdrawalAlreadyExists)
 			},
@@ -92,13 +92,13 @@ func TestPostAPIUserBalanceWithdraw(t *testing.T) {
 				repo.EXPECT().CreateUserWithdrawal(
 					req.Context(),
 					testUserID,
-					testOrderNumber,
+					testutils.TestOrderNumber,
 					withdrawMoney.AmountMinor,
-				).Return(errors.New("some error"))
+				).Return(testutils.UnexpectedError)
 			},
 			errExpected: true,
 		},
 	} {
-		t.Run(tc.name, runDeliveryTestCase(tc, app.server.PostAPIUserBalanceWithdraw))
+		t.Run(tc.name, runDeliveryTestCase(tc, app.Server.PostAPIUserBalanceWithdraw))
 	}
 }

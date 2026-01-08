@@ -2,20 +2,20 @@ package restapi_test
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"testing"
 	"time"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/models"
+	"github.com/georgg2003/gophermart/internal/pkg/testutils"
 	"github.com/georgg2003/gophermart/internal/usecase"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetAPIUserOrders(t *testing.T) {
-	app := newTestApp(t)
-	repo := app.repo
+	app := testutils.NewTestApp(t)
+	repo := app.Repo
 
 	orderNumber := "12345678903"
 	uploadedAt := time.Now().Add(-time.Hour)
@@ -69,11 +69,11 @@ func TestGetAPIUserOrders(t *testing.T) {
 				repo.EXPECT().GetUserOrders(
 					req.Context(),
 					testUserID,
-				).Return(nil, errors.New("some error"))
+				).Return(nil, testutils.UnexpectedError)
 			},
 			errExpected: true,
 		},
 	} {
-		t.Run(tc.name, runDeliveryTestCase(tc, app.server.GetAPIUserOrders))
+		t.Run(tc.name, runDeliveryTestCase(tc, app.Server.GetAPIUserOrders))
 	}
 }

@@ -1,19 +1,19 @@
 package restapi_test
 
 import (
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
+	"github.com/georgg2003/gophermart/internal/pkg/testutils"
 	"github.com/georgg2003/gophermart/internal/usecase"
 )
 
 func TestPostAPIUserOrders(t *testing.T) {
-	app := newTestApp(t)
-	repo := app.repo
+	app := testutils.NewTestApp(t)
+	repo := app.Repo
 
-	req := restapi.PostAPIUserOrdersTextRequestBody(testOrderNumber)
+	req := restapi.PostAPIUserOrdersTextRequestBody(testutils.TestOrderNumber)
 	body := []byte(req)
 
 	invalidReq := restapi.PostAPIUserOrdersTextRequestBody("321321321")
@@ -29,7 +29,7 @@ func TestPostAPIUserOrders(t *testing.T) {
 				repo.EXPECT().CreateUserOrder(
 					req.Context(),
 					testUserID,
-					testOrderNumber,
+					testutils.TestOrderNumber,
 				).Return(nil)
 			},
 		},
@@ -57,7 +57,7 @@ func TestPostAPIUserOrders(t *testing.T) {
 				repo.EXPECT().CreateUserOrder(
 					req.Context(),
 					testUserID,
-					testOrderNumber,
+					testutils.TestOrderNumber,
 				).Return(usecase.ErrOrderAlreadyUploaded)
 			},
 		},
@@ -70,7 +70,7 @@ func TestPostAPIUserOrders(t *testing.T) {
 				repo.EXPECT().CreateUserOrder(
 					req.Context(),
 					testUserID,
-					testOrderNumber,
+					testutils.TestOrderNumber,
 				).Return(usecase.ErrOrderAlreadyUploadedByAnotherUser)
 			},
 		},
@@ -81,12 +81,12 @@ func TestPostAPIUserOrders(t *testing.T) {
 				repo.EXPECT().CreateUserOrder(
 					req.Context(),
 					testUserID,
-					testOrderNumber,
-				).Return(errors.New("some error"))
+					testutils.TestOrderNumber,
+				).Return(testutils.UnexpectedError)
 			},
 			errExpected: true,
 		},
 	} {
-		t.Run(tc.name, runDeliveryTestCase(tc, app.server.PostAPIUserOrders))
+		t.Run(tc.name, runDeliveryTestCase(tc, app.Server.PostAPIUserOrders))
 	}
 }
