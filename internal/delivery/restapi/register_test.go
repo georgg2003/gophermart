@@ -79,7 +79,7 @@ func TestPostAPIUserRegister(t *testing.T) {
 					req.Context(),
 					creds.Login,
 					gotils.HashPassword(creds.Password),
-				).Return(int64(-1), testutils.UnexpectedError)
+				).Return(int64(-1), testutils.ErrUnexpectedError)
 			},
 			errExpected: true,
 		},

@@ -47,7 +47,7 @@ func TestGetAPIUserBalance(t *testing.T) {
 				repo.EXPECT().GetUserBalance(
 					req.Context(),
 					testUserID,
-				).Return(nil, testutils.UnexpectedError)
+				).Return(nil, testutils.ErrUnexpectedError)
 			},
 			errExpected: true,
 		},

@@ -82,7 +82,7 @@ func TestPostAPIUserOrders(t *testing.T) {
 					req.Context(),
 					testUserID,
 					testutils.TestOrderNumber,
-				).Return(testutils.UnexpectedError)
+				).Return(testutils.ErrUnexpectedError)
 			},
 			errExpected: true,
 		},

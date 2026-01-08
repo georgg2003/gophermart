@@ -79,10 +79,7 @@ func main() {
 		echoMiddleware.Recover(),
 		middleware.LoggingMiddleware(logger),
 		middleware.NewAuthMiddleware(cfg.JWTSecretKey, logger, func(c echo.Context) bool {
-			if c.Path() == "/api/user/login" || c.Path() == "/api/user/register" {
-				return true
-			}
-			return false
+			return c.Path() == "/api/user/login" || c.Path() == "/api/user/register"
 		}),
 		validator,
 	)

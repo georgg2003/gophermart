@@ -55,6 +55,8 @@ func runDeliveryTestCase(
 		require.NoError(t, err)
 
 		res := resp.Result()
+		defer res.Body.Close()
+
 		assert.Equal(t, tc.statusCode, res.StatusCode)
 
 		body, err := io.ReadAll(res.Body)

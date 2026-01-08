@@ -115,7 +115,7 @@ func TestMakeProccessorWorker(t *testing.T) {
 				app.Repo.EXPECT().
 					SetOrderStatus(gomock.Any(), testutils.TestOrderNumber, models.StatusInvalid).
 					After(getOrderAccrualCall).
-					Return(testutils.UnexpectedError)
+					Return(testutils.ErrUnexpectedError)
 			},
 		},
 		{
@@ -137,7 +137,7 @@ func TestMakeProccessorWorker(t *testing.T) {
 			mockFunc: func() {
 				app.Repo.EXPECT().
 					GetOrderToProcess(gomock.Any(), app.Cfg.ProcessRetryTimeout).
-					Return("", testutils.UnexpectedError)
+					Return("", testutils.ErrUnexpectedError)
 
 				app.AccrualRepo.EXPECT().
 					GetOrderAccrual(gomock.Any(), testutils.TestOrderNumber).Times(0)
@@ -156,7 +156,7 @@ func TestMakeProccessorWorker(t *testing.T) {
 				app.AccrualRepo.EXPECT().
 					GetOrderAccrual(gomock.Any(), testutils.TestOrderNumber).
 					After(getOrderCall).
-					Return(nil, testutils.UnexpectedError)
+					Return(nil, testutils.ErrUnexpectedError)
 
 				app.Repo.EXPECT().
 					ApplyOrderAccrual(gomock.Any(), testutils.TestOrderNumber, gomock.Any()).

@@ -69,7 +69,7 @@ func TestGetAPIUserOrders(t *testing.T) {
 				repo.EXPECT().GetUserOrders(
 					req.Context(),
 					testUserID,
-				).Return(nil, testutils.UnexpectedError)
+				).Return(nil, testutils.ErrUnexpectedError)
 			},
 			errExpected: true,
 		},

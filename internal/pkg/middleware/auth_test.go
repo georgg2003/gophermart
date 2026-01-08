@@ -46,6 +46,8 @@ func runTestCase(tc TestCase, handlerFunc echo.HandlerFunc) func(t *testing.T) {
 		require.NoError(t, err)
 
 		res := resp.Result()
+		defer res.Body.Close()
+
 		assert.Equal(t, tc.statusCode, res.StatusCode)
 
 		if tc.name == successAuthTestCaseName {
@@ -68,10 +70,7 @@ func TestNewAuthMiddleware(t *testing.T) {
 	helper := jwthelper.New([]byte(secretKey))
 
 	authMiddleware := middleware.NewAuthMiddleware(secretKey, logger, func(c echo.Context) bool {
-		if c.Path() == skipperPath {
-			return true
-		}
-		return false
+		return c.Path() == skipperPath
 	})
 
 	next := func(c echo.Context) error {

@@ -14,7 +14,7 @@ import (
 
 const TestOrderNumber = "12345678903"
 
-var UnexpectedError = errors.New("some error")
+var ErrUnexpectedError = errors.New("some error")
 
 type TestApp struct {
 	Cfg         *config.Config

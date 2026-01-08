@@ -67,7 +67,7 @@ func TestGetAPIUserWithdrawals(t *testing.T) {
 				repo.EXPECT().GetUserWithdrawals(
 					req.Context(),
 					testUserID,
-				).Return(nil, testutils.UnexpectedError)
+				).Return(nil, testutils.ErrUnexpectedError)
 			},
 			errExpected: true,
 		},

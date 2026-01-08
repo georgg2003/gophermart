@@ -94,7 +94,7 @@ func TestPostAPIUserBalanceWithdraw(t *testing.T) {
 					testUserID,
 					testutils.TestOrderNumber,
 					withdrawMoney.AmountMinor,
-				).Return(testutils.UnexpectedError)
+				).Return(testutils.ErrUnexpectedError)
 			},
 			errExpected: true,
 		},
