@@ -23,9 +23,9 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-const getWithdrawalsPath = "/withdrawals"
+const getOrdersPath = "/orders"
 
-type GetWithdrawalsTestCase struct {
+type GetOrdersTestCase struct {
 	name        string
 	body        []byte
 	statusCode  int
@@ -34,13 +34,13 @@ type GetWithdrawalsTestCase struct {
 	errExpected bool
 }
 
-func runGetWithdrawalsTestCase(
-	tc GetWithdrawalsTestCase,
+func runGetOrdersTestCase(
+	tc GetOrdersTestCase,
 	server restapi.ServerInterface,
 ) func(t *testing.T) {
 	return func(t *testing.T) {
 		buf := bytes.NewBuffer(tc.body)
-		req := httptest.NewRequest(http.MethodGet, getWithdrawalsPath, buf)
+		req := httptest.NewRequest(http.MethodGet, getOrdersPath, buf)
 		req = req.WithContext(contextlib.SetUserID(req.Context(), testUserID))
 
 		resp := httptest.NewRecorder()
@@ -51,7 +51,7 @@ func runGetWithdrawalsTestCase(
 			tc.mockFunc(req)
 		}
 
-		err := server.GetAPIUserWithdrawals(c)
+		err := server.GetAPIUserOrders(c)
 		if tc.errExpected {
 			assert.Error(t, err)
 			return
@@ -69,7 +69,7 @@ func runGetWithdrawalsTestCase(
 	}
 }
 
-func TestGetAPIUserWithdrawals(t *testing.T) {
+func TestGetAPIUserOrders(t *testing.T) {
 	cfg := config.New()
 
 	logger := logrus.New()
@@ -82,53 +82,55 @@ func TestGetAPIUserWithdrawals(t *testing.T) {
 	server := restapi.NewServer(cfg, logger, uc)
 
 	orderNumber := "12345678903"
-	processedAt := time.Now()
+	uploadedAt := time.Now().Add(-time.Hour)
 	money := models.NewMoney(100000)
 
-	successResponse := []restapi.WithdrawalInfo{
+	successResponse := []restapi.OrderInfo{
 		{
-			Order:       &orderNumber,
-			ProcessedAt: &processedAt,
-			Sum:         money.Major(),
+			Number:     orderNumber,
+			Status:     restapi.OrderInfoStatus(models.StatusProcessed),
+			UploadedAt: uploadedAt,
+			Accrual:    money.NullMajor(),
 		},
 	}
 	response, err := json.Marshal(successResponse)
 	response = append(response, '\n')
 	require.NoError(t, err)
 
-	for _, tc := range []GetWithdrawalsTestCase{
+	for _, tc := range []GetOrdersTestCase{
 		{
-			name:       "success get withdrawals",
+			name:       "success get orders",
 			statusCode: http.StatusOK,
 			response:   response,
 			mockFunc: func(req *http.Request) {
-				repo.EXPECT().GetUserWithdrawals(
+				repo.EXPECT().GetUserOrders(
 					req.Context(),
 					testUserID,
-				).Return([]models.Withdrawal{
+				).Return([]models.Order{
 					{
-						Order:       &orderNumber,
-						Sum:         money,
-						ProcessedAt: &processedAt,
+						Number:     orderNumber,
+						Status:     models.StatusProcessed,
+						Accrual:    &money,
+						UploadedAt: uploadedAt,
 					},
 				}, nil)
 			},
 		},
 		{
-			name:       "no withdrawals",
+			name:       "no orders",
 			statusCode: http.StatusNoContent,
-			response:   []byte("No withdrawals found"),
+			response:   []byte("No orders found"),
 			mockFunc: func(req *http.Request) {
-				repo.EXPECT().GetUserWithdrawals(
+				repo.EXPECT().GetUserOrders(
 					req.Context(),
 					testUserID,
-				).Return(nil, usecase.ErrWidthdrawalsNotFound)
+				).Return(nil, usecase.ErrOrdersNotFound)
 			},
 		},
 		{
 			name: "repo error",
 			mockFunc: func(req *http.Request) {
-				repo.EXPECT().GetUserWithdrawals(
+				repo.EXPECT().GetUserOrders(
 					req.Context(),
 					testUserID,
 				).Return(nil, errors.New("some error"))
@@ -136,6 +138,6 @@ func TestGetAPIUserWithdrawals(t *testing.T) {
 			errExpected: true,
 		},
 	} {
-		t.Run(tc.name, runGetWithdrawalsTestCase(tc, server))
+		t.Run(tc.name, runGetOrdersTestCase(tc, server))
 	}
 }
