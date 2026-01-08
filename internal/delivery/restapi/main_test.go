@@ -20,7 +20,7 @@ import (
 )
 
 const testUserID = int64(1)
-const testOrderNumber = "123321"
+const testOrderNumber = "12345678903"
 
 type DeliveryTestCase struct {
 	name             string
@@ -30,6 +30,7 @@ type DeliveryTestCase struct {
 	mockFunc         func(*http.Request)
 	errExpected      bool
 	validateResponse func(t *testing.T, r *http.Response)
+	transformRequest func(r *http.Request, w http.ResponseWriter)
 }
 
 func runDeliveryTestCase(
@@ -42,6 +43,10 @@ func runDeliveryTestCase(
 		req = req.WithContext(contextlib.SetUserID(req.Context(), testUserID))
 
 		resp := httptest.NewRecorder()
+
+		if tc.transformRequest != nil {
+			tc.transformRequest(req, resp)
+		}
 
 		c := echo.New().NewContext(req, resp)
 
