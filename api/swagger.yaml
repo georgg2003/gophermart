@@ -1,0 +1,209 @@
+openapi: 3.0.3
+info:
+  title: Gophermart Loyalty System API
+  version: "1.0.0"
+  description: |
+    HTTP API накопительной системы лояльности «Гофермарт».
+    Реализация согласно техническому заданию.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [login, password]
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+
+    LoginRequest:
+      type: object
+      required: [login, password]
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+
+    OrderInfo:
+      type: object
+      required: [number, status, uploaded_at]
+      properties:
+        number:
+          type: string
+        status:
+          type: string
+          enum: [NEW, PROCESSING, INVALID, PROCESSED]
+        accrual:
+          type: number
+          format: double
+        uploaded_at:
+          type: string
+          format: date-time
+
+    BalanceResponse:
+      type: object
+      required: [current, withdrawn]
+      properties:
+        current:
+          type: number
+          format: double
+        withdrawn:
+          type: number
+          format: double
+
+    WithdrawRequest:
+      type: object
+      required: [order, sum]
+      properties:
+        order:
+          type: string
+        sum:
+          type: number
+          format: double
+
+    WithdrawalInfo:
+      type: object
+      required: [sum]
+      properties:
+        order:
+          type: string
+        sum:
+          type: number
+          format: double
+        processed_at:
+          type: string
+          format: date-time
+
+paths:
+  /api/user/register:
+    post:
+      summary: Регистрация пользователя
+      operationId: PostAPIUserRegister
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200': { description: Пользователь зарегистрирован }
+        '400': { description: Неверный формат запроса }
+        '409': { description: Логин уже занят }
+        '500': { description: Внутренняя ошибка сервера }
+
+  /api/user/login:
+    post:
+      summary: Аутентификация пользователя
+      operationId: PostAPIUserLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200': { description: Успешная аутентификация }
+        '400': { description: Неверный формат запроса }
+        '401': { description: Неверные учетные данные }
+        '500': { description: Внутренняя ошибка сервера }
+
+  /api/user/orders:
+    post:
+      summary: Загрузка номера заказа
+      operationId: PostAPIUserOrders
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200': { description: Заказ уже был загружен пользователем }
+        '202': { description: Новый заказ принят в обработку }
+        '400': { description: Неверный формат запроса }
+        '401': { description: Пользователь не аутентифицирован }
+        '409': { description: Заказ принадлежит другому пользователю }
+        '422': { description: Неверный номер заказа }
+        '500': { description: Внутренняя ошибка сервера }
+
+    get:
+      summary: Получение списка заказов пользователя
+      operationId: GetAPIUserOrders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список заказов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderInfo'
+        '204': { description: Нет данных }
+        '401': { description: Пользователь не авторизован }
+        '500': { description: Внутренняя ошибка сервера }
+
+  /api/user/balance:
+    get:
+      summary: Получение текущего баланса
+      operationId: GetAPIUserBalance
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Баланс пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '401': { description: Пользователь не авторизован }
+        '500': { description: Внутренняя ошибка сервера }
+
+  /api/user/balance/withdraw:
+    post:
+      summary: Списание баллов
+      operationId: PostAPIUserBalanceWithdraw
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawRequest'
+      responses:
+        '200': { description: Успешное списание }
+        '401': { description: Пользователь не авторизован }
+        '402': { description: Недостаточно средств }
+        '422': { description: Неверный номер заказа }
+        '500': { description: Внутренняя ошибка сервера }
+
+  /api/user/withdrawals:
+    get:
+      summary: История списаний
+      operationId: GetAPIUserWithdrawals
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список списаний
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WithdrawalInfo'
+        '204': { description: Нет данных }
+        '401': { description: Пользователь не авторизован }
+        '500': { description: Внутренняя ошибка сервера }

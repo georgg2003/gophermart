@@ -1,0 +1,4 @@
+package: restapi
+generate:
+  echo-server: true
+output: server.gen.go
