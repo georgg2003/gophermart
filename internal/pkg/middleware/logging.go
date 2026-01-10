@@ -35,6 +35,7 @@ func LoggingMiddleware(logger *logging.Logger) echo.MiddlewareFunc {
 			err := next(c)
 			stop := time.Now()
 
+			ctx = c.Request().Context()
 			logger = logger.WithRequestCtx(ctx).WithString(
 				"latency", fmt.Sprint(stop.Sub(start)),
 			)
