@@ -64,6 +64,7 @@ func (uc *useCase) MakeProcessorWorker(
 ) {
 	ticker := time.NewTicker(time.Duration(time.Second))
 	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():

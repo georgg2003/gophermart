@@ -2,7 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
@@ -16,6 +20,7 @@ import (
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	oapiValidator "github.com/oapi-codegen/echo-middleware"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 )
 
 const pathToSwagger = "api/swagger.yaml"
@@ -31,8 +36,12 @@ func main() {
 	}
 	cfg.ReadFromFlags()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
 
 	repository, err := postgres.New(cfg, logger, ctx)
 	if err != nil {
@@ -86,12 +95,28 @@ func main() {
 
 	restapi.RegisterHandlers(e, delivery)
 
+	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i < cfg.Workers; i++ {
-		go usecase.MakeProcessorWorker(ctx)
+		g.Go(func() error {
+			usecase.MakeProcessorWorker(ctx)
+			return nil
+		})
 	}
 
-	err = e.Start(cfg.RunAddr)
-	if err != nil {
-		logger.WithError(err).Fatal("server failed")
+	g.Go(func() error {
+		if err = e.Start(cfg.RunAddr); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logger.WithError(err).Error("server failed")
+			return err
+		}
+		return nil
+	})
+
+	g.Go(func() error {
+		<-ctx.Done()
+		return e.Shutdown(context.Background())
+	})
+
+	if err := g.Wait(); err != nil {
+		logger.WithError(err).Error("application stopped with error")
 	}
 }
