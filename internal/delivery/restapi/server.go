@@ -2,8 +2,8 @@ package restapi
 
 import (
 	"github.com/georgg2003/gophermart/internal/pkg/config"
+	"github.com/georgg2003/gophermart/internal/pkg/logging"
 	"github.com/georgg2003/gophermart/internal/usecase"
-	"github.com/sirupsen/logrus"
 )
 
 //go:generate go tool oapi-codegen --config=./gen/server.yaml ../../../api/swagger.yaml
@@ -11,13 +11,13 @@ import (
 
 type server struct {
 	cfg    *config.Config
-	logger *logrus.Logger
+	logger *logging.Logger
 	uc     usecase.UseCase
 }
 
 func NewServer(
 	cfg *config.Config,
-	logger *logrus.Logger,
+	logger *logging.Logger,
 	uc usecase.UseCase,
 ) ServerInterface {
 	return &server{

@@ -2,13 +2,14 @@ package testutils
 
 import (
 	"errors"
+	"log/slog"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
+	"github.com/georgg2003/gophermart/internal/pkg/logging"
 	"github.com/georgg2003/gophermart/internal/repository/mock"
 	"github.com/georgg2003/gophermart/internal/usecase"
-	"github.com/sirupsen/logrus"
 	"go.uber.org/mock/gomock"
 )
 
@@ -26,7 +27,7 @@ type TestApp struct {
 
 func NewTestApp(t *testing.T) *TestApp {
 	cfg := config.New()
-	logger := logrus.New()
+	logger := logging.New(slog.LevelDebug)
 
 	ctrl := gomock.NewController(t)
 	repo := mock.NewMockRepository(ctrl)

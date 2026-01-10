@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/georgg2003/gophermart/internal/usecase"
@@ -15,12 +16,14 @@ func (s *server) PostAPIUserLogin(c echo.Context) error {
 	defer req.Body.Close()
 	ctx := req.Context()
 
+	logger := s.logger.WithRequestCtx(ctx)
+
 	decoder := json.NewDecoder(req.Body)
 
 	var loginRequest LoginRequest
 	err := decoder.Decode(&loginRequest)
 	if err != nil {
-		s.logger.WithError(err).Error("failed to decode json login request")
+		logger.WithError(err).Error("failed to decode json login request")
 		return c.String(http.StatusBadRequest, "wrong request format")
 	}
 
@@ -30,10 +33,10 @@ func (s *server) PostAPIUserLogin(c echo.Context) error {
 			errors.Is(err, usecase.ErrUserNotFound) {
 			return c.String(http.StatusUnauthorized, "Incorrect login or password")
 		}
-		s.logger.WithError(err).Error("failed to login user")
+		logger.WithError(err).Error("failed to login user")
 		return err
 	}
-	s.logger.WithField("login", loginRequest.Login).Info("successfully logged in user")
+	logger.With(slog.String("login", loginRequest.Login)).Info("successfully logged in user")
 
 	c.Response().Header().Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", accessToken))
 	return c.String(http.StatusOK, "successfully logged in")

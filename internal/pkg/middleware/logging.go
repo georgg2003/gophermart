@@ -1,19 +1,18 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
+	"github.com/georgg2003/gophermart/internal/pkg/logging"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 )
 
-func LoggingMiddleware(logger *logrus.Logger) echo.MiddlewareFunc {
+func LoggingMiddleware(logger *logging.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			start := time.Now()
-			err := next(c)
-			stop := time.Now()
-
 			req := c.Request()
 			res := c.Response()
 
@@ -22,22 +21,29 @@ func LoggingMiddleware(logger *logrus.Logger) echo.MiddlewareFunc {
 				reqID = res.Header().Get(echo.HeaderXRequestID)
 			}
 
-			entry := logger.WithFields(logrus.Fields{
-				"remote_ip":  c.RealIP(),
-				"host":       req.Host,
-				"method":     req.Method,
-				"path":       req.URL.Path,
-				"status":     res.Status,
-				"latency":    stop.Sub(start),
-				"user_agent": req.UserAgent(),
-				"request_id": reqID,
+			ctx := req.Context()
+			ctx = contextlib.SetRequestInfo(ctx, contextlib.RequestInfo{
+				RequestID: reqID,
+				RemoteIP:  c.RealIP(),
+				Host:      req.Host,
+				Method:    req.Method,
+				Path:      req.URL.Path,
+				UserAgent: req.UserAgent(),
 			})
+			c.SetRequest(req.WithContext(ctx))
+
+			err := next(c)
+			stop := time.Now()
+
+			logger = logger.WithRequestCtx(ctx).WithString(
+				"latency", fmt.Sprint(stop.Sub(start)),
+			)
 
 			if err != nil {
-				entry.WithField("error", err).Error("request completed with error")
+				logger.WithError(err).Error("request completed with error")
 				return err
 			} else {
-				entry.Info("request completed")
+				logger.Info("request completed")
 			}
 
 			return nil

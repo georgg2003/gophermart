@@ -4,18 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 
 	"github.com/georgg2003/gophermart/internal/models"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
+	"github.com/georgg2003/gophermart/internal/pkg/logging"
 	"github.com/georgg2003/gophermart/internal/repository"
 	"github.com/georgg2003/gophermart/pkg/errutils"
 	"github.com/go-resty/resty/v2"
-	"github.com/sirupsen/logrus"
 )
 
 type accrual struct {
 	client *resty.Client
-	logger *logrus.Logger
+	logger *logging.Logger
 }
 
 var ErrResponseNilBody = errors.New("accrual response has nil body")
@@ -28,18 +29,15 @@ func (a *accrual) GetOrderAccrual(
 		SetPathParam("number", orderNumber).
 		Get("/api/orders/{number}")
 
-	logger := a.logger.WithField("order_number", orderNumber)
-	logger.WithFields(logrus.Fields{
-		"trace": r.Request.TraceInfo(),
-		"url":   r.Request.URL,
-	}).Debug("request to accrual service")
+	logger := a.logger.With(slog.String("order_number", orderNumber))
+	logger.WithString("url", r.Request.URL).Debug("request to accrual service")
 
 	if err != nil {
 		logger.WithError(err).Error("request to accrual failed")
 		return nil, errutils.Wrap(err, "request to accrual failed")
 	}
 
-	logger.WithField("response_body", r.String()).Debug("accrual response body")
+	logger.WithString("response_body", r.String()).Debug("accrual response body")
 
 	body := r.Body()
 	if body == nil {
@@ -56,7 +54,7 @@ func (a *accrual) GetOrderAccrual(
 	return &resp, err
 }
 
-func New(cfg *config.Config, logger *logrus.Logger) repository.AccrualRepo {
+func New(cfg *config.Config, logger *logging.Logger) repository.AccrualRepo {
 	client := resty.New().SetBaseURL(cfg.AccrualSysAddr).EnableTrace()
 	return &accrual{
 		client: client,

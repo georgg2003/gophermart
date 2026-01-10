@@ -16,6 +16,7 @@ type Config struct {
 	JWTSecretKey        string `mapstructure:"jwt_secret_key" env:"JWT_SECRET_KEY"`
 	Workers             int    `mapstructure:"workers" env:"WORKERS"`
 	WorkerTimeout       int    `mapstructure:"worker_timeout" env:"WORKER_TIMEOUT"`
+	WorkerTickDuration  int    `mapstructure:"worker_tick_duration" env:"WORKER_TICK_DURATION"`
 	ProcessRetryTimeout int    `mapstructure:"process_retry_timeout" env:"PROCESS_RETRY_TIMEOUT"`
 }
 
@@ -25,6 +26,7 @@ func New() *Config {
 		AccrualSysAddr:      "http://localhost:8000",
 		Workers:             3,
 		WorkerTimeout:       5,
+		WorkerTickDuration:  1,
 		ProcessRetryTimeout: 30,
 	}
 }

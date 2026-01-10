@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/georgg2003/gophermart/internal/delivery/restapi"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
+	"github.com/georgg2003/gophermart/internal/pkg/logging"
 	"github.com/georgg2003/gophermart/internal/pkg/middleware"
 	"github.com/georgg2003/gophermart/internal/repository/accrual"
 	"github.com/georgg2003/gophermart/internal/repository/postgres"
@@ -19,16 +21,13 @@ import (
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	oapiValidator "github.com/oapi-codegen/echo-middleware"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
 const pathToSwagger = "api/swagger.yaml"
 
 func main() {
-	logger := logrus.New()
-	logger.SetFormatter(&logrus.JSONFormatter{})
-	logger.SetLevel(logrus.DebugLevel)
+	logger := logging.New(slog.LevelDebug)
 
 	cfg := config.New()
 	if err := cfg.ReadFromEnv(); err != nil {
@@ -43,23 +42,33 @@ func main() {
 	)
 	defer stop()
 
-	repository, err := postgres.New(cfg, logger, ctx)
+	repository, err := postgres.New(cfg, logger.WithString("layer", "pg repo"), ctx)
 	if err != nil {
 		logger.WithError(err).Fatal("failed to create postgres repository")
 	}
-	accrualRepo := accrual.New(cfg, logger)
+	accrualRepo := accrual.New(cfg, logger.WithString("layer", "accrual repo"))
 
-	usecase := usecase.New(cfg, logger, repository, accrualRepo)
-	delivery := restapi.NewServer(cfg, logger, usecase)
+	usecase := usecase.New(
+		cfg,
+		logger.WithString("layer", "usecase"),
+		repository,
+		accrualRepo,
+	)
+
+	delivery := restapi.NewServer(
+		cfg,
+		logger.WithString("layer", "delivery"),
+		usecase,
+	)
 
 	data, err := os.ReadFile(pathToSwagger)
 	if err != nil {
-		logger.WithError(err).Fatalf("error reading %s", pathToSwagger)
+		logger.WithError(err).WithString("path", pathToSwagger).Fatal("error reading swagger file")
 	}
 
 	swagger, err := openapi3.NewLoader().LoadFromData(data)
 	if err != nil {
-		logger.WithError(err).Fatalf("error parsing %s as Swagger YAML", pathToSwagger)
+		logger.WithError(err).WithString("path", pathToSwagger).Fatal("error parsing file as Swagger YAML")
 	}
 
 	validator := oapiValidator.OapiRequestValidatorWithOptions(

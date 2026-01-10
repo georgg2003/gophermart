@@ -15,15 +15,17 @@ func (s *server) PostAPIUserOrders(c echo.Context) error {
 	defer req.Body.Close()
 	ctx := req.Context()
 
+	logger := s.logger.WithRequestCtx(ctx)
+
 	bodyBytes, err := io.ReadAll(req.Body)
 	if err != nil {
-		s.logger.WithContext(ctx).WithError(err).Error("failed to read body")
+		logger.WithError(err).Error("failed to read body")
 		return c.String(http.StatusBadRequest, "wrong body format")
 	}
 	orderNumber := string(bodyBytes)
 
 	if !luhn.ValidLuhn(orderNumber) {
-		s.logger.WithContext(ctx).WithError(err).Error("order number is not valid")
+		logger.WithError(err).Error("order number is not valid")
 		return c.String(http.StatusUnprocessableEntity, "order number is not valid")
 	}
 
@@ -35,7 +37,7 @@ func (s *server) PostAPIUserOrders(c echo.Context) error {
 		if errors.Is(err, usecase.ErrOrderAlreadyUploadedByAnotherUser) {
 			return c.String(http.StatusConflict, "order has already been uploaded by another user")
 		}
-		s.logger.WithContext(ctx).WithError(err).Error("failed to create order")
+		logger.WithError(err).Error("failed to create order")
 		return err
 	}
 

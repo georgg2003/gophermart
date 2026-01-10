@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/georgg2003/gophermart/internal/usecase"
@@ -15,12 +16,14 @@ func (s *server) PostAPIUserRegister(c echo.Context) error {
 	defer req.Body.Close()
 	ctx := req.Context()
 
+	logger := s.logger.WithRequestCtx(ctx)
+
 	decoder := json.NewDecoder(req.Body)
 
 	var registerRequest RegisterRequest
 	err := decoder.Decode(&registerRequest)
 	if err != nil {
-		s.logger.WithError(err).Error("failed to decode json register request")
+		logger.WithError(err).Error("failed to decode json register request")
 		return c.String(http.StatusBadRequest, "wrong request format")
 	}
 
@@ -29,10 +32,10 @@ func (s *server) PostAPIUserRegister(c echo.Context) error {
 		return c.String(http.StatusConflict, "user already exists")
 	}
 	if err != nil {
-		s.logger.WithError(err).Error("failed to register user")
+		logger.WithError(err).Error("failed to register user")
 		return err
 	}
-	s.logger.WithField("login", registerRequest.Login).Info("successfully registered user")
+	logger.With(slog.String("login", registerRequest.Login)).Info("successfully registered user")
 
 	c.Response().Header().Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", accessToken))
 	return c.String(http.StatusOK, "successfully registered")

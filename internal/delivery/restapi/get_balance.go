@@ -11,9 +11,11 @@ func (s *server) GetAPIUserBalance(c echo.Context) error {
 	defer req.Body.Close()
 	ctx := req.Context()
 
+	logger := s.logger.WithRequestCtx(ctx)
+
 	balance, err := s.uc.UserGetBalance(ctx)
 	if err != nil {
-		s.logger.WithError(err).Error("failed to get user balance")
+		logger.WithError(err).Error("failed to get user balance")
 		return err
 	}
 	resp := BalanceResponse{

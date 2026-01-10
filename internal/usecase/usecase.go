@@ -5,14 +5,14 @@ import (
 
 	"github.com/georgg2003/gophermart/internal/models"
 	"github.com/georgg2003/gophermart/internal/pkg/config"
+	"github.com/georgg2003/gophermart/internal/pkg/logging"
 	"github.com/georgg2003/gophermart/internal/repository"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
-	"github.com/sirupsen/logrus"
 )
 
 type useCase struct {
 	cfg         *config.Config
-	logger      *logrus.Logger
+	logger      *logging.Logger
 	repo        repository.Repository
 	jwtHelper   *jwthelper.JWTHelper
 	accrualRepo repository.AccrualRepo
@@ -54,7 +54,7 @@ type UseCase interface {
 
 func New(
 	cfg *config.Config,
-	logger *logrus.Logger,
+	logger *logging.Logger,
 	repo repository.Repository,
 	accrualRepo repository.AccrualRepo,
 ) UseCase {

@@ -5,14 +5,14 @@ import (
 	"strings"
 
 	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
+	"github.com/georgg2003/gophermart/internal/pkg/logging"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 )
 
 func NewAuthMiddleware(
 	secretKey string,
-	l *logrus.Logger,
+	l *logging.Logger,
 	skipper func(c echo.Context) bool,
 ) echo.MiddlewareFunc {
 	helper := jwthelper.New([]byte(secretKey))
@@ -27,17 +27,17 @@ func NewAuthMiddleware(
 
 			token := req.Header.Get(echo.HeaderAuthorization)
 			if token == "" {
-				l.WithContext(ctx).Error("authorization header is empty")
+				l.Error("authorization header is empty")
 				return c.String(http.StatusUnauthorized, "No auth")
 			}
 			if !strings.Contains(token, "Bearer ") {
-				l.WithContext(ctx).Error("token is not bearer")
+				l.Error("token is not bearer")
 				return c.String(http.StatusUnauthorized, "Invalid token")
 			}
 			token = strings.Split(token, "Bearer ")[1]
 			userID, err := helper.ReadAccessToken(token)
 			if err != nil {
-				l.WithContext(ctx).WithError(err).Error("got an invalid token")
+				l.WithError(err).Error("got an invalid token")
 				return c.String(http.StatusUnauthorized, "Invalid token")
 			}
 

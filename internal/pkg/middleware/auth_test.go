@@ -3,15 +3,16 @@ package middleware_test
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/georgg2003/gophermart/internal/pkg/contextlib"
+	"github.com/georgg2003/gophermart/internal/pkg/logging"
 	"github.com/georgg2003/gophermart/internal/pkg/middleware"
 	"github.com/georgg2003/gophermart/pkg/jwthelper"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -65,7 +66,7 @@ func runTestCase(tc TestCase, handlerFunc echo.HandlerFunc) func(t *testing.T) {
 }
 
 func TestNewAuthMiddleware(t *testing.T) {
-	logger := logrus.New()
+	logger := logging.New(slog.LevelDebug)
 
 	helper := jwthelper.New([]byte(secretKey))
 

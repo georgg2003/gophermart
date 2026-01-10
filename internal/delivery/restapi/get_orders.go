@@ -13,12 +13,14 @@ func (s *server) GetAPIUserOrders(c echo.Context) error {
 	defer req.Body.Close()
 	ctx := req.Context()
 
+	logger := s.logger.WithRequestCtx(ctx)
+
 	orders, err := s.uc.UserGetOrders(ctx)
 	if err != nil {
 		if errors.Is(err, usecase.ErrOrdersNotFound) {
 			return c.String(http.StatusNoContent, "No orders found")
 		}
-		s.logger.WithError(err).Error("failed to get user orders")
+		logger.WithError(err).Error("failed to get user orders")
 		return err
 	}
 

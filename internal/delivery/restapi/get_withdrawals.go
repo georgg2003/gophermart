@@ -13,12 +13,14 @@ func (s *server) GetAPIUserWithdrawals(c echo.Context) error {
 	defer req.Body.Close()
 	ctx := req.Context()
 
+	logger := s.logger.WithRequestCtx(ctx)
+
 	withdrawls, err := s.uc.UserGetWithdrawals(ctx)
 	if err != nil {
 		if errors.Is(err, usecase.ErrWidthdrawalsNotFound) {
 			return c.String(http.StatusNoContent, "No withdrawals found")
 		}
-		s.logger.WithError(err).Error("failed to get user balance")
+		logger.WithError(err).Error("failed to get user balance")
 		return err
 	}
 

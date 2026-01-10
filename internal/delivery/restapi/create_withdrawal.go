@@ -16,17 +16,19 @@ func (s *server) PostAPIUserBalanceWithdraw(c echo.Context) error {
 	defer req.Body.Close()
 	ctx := req.Context()
 
+	logger := s.logger.WithRequestCtx(ctx)
+
 	decoder := json.NewDecoder(req.Body)
 
 	var withdrawRequest WithdrawRequest
 	err := decoder.Decode(&withdrawRequest)
 	if err != nil {
-		s.logger.WithError(err).Info("failed to decode json withdraw request")
+		logger.WithError(err).Info("failed to decode json withdraw request")
 		return c.String(http.StatusBadRequest, "wrong request format")
 	}
 
 	if !luhn.ValidLuhn(withdrawRequest.Order) {
-		s.logger.WithError(err).Info("order number is not valid")
+		logger.WithError(err).Info("order number is not valid")
 		return c.String(http.StatusUnprocessableEntity, "order number is not valid")
 	}
 
@@ -37,11 +39,11 @@ func (s *server) PostAPIUserBalanceWithdraw(c echo.Context) error {
 	)
 	if err != nil {
 		if errors.Is(err, usecase.ErrNotEnoughBalance) {
-			s.logger.WithError(err).Info("not enough balance")
+			logger.WithError(err).Info("not enough balance")
 			return c.String(http.StatusPaymentRequired, "not enough balance for withdrawal")
 		}
 		if errors.Is(err, usecase.ErrWithdrawalAlreadyExists) {
-			s.logger.WithError(err).Info("withdrawal already exists")
+			logger.WithError(err).Info("withdrawal already exists")
 			return c.String(http.StatusConflict, "withdrawal already exists")
 		}
 		return err

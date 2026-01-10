@@ -2,24 +2,25 @@ package usecase
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/georgg2003/gophermart/internal/models"
-	"github.com/sirupsen/logrus"
 )
 
 func (uc *useCase) processOrder(ctx context.Context) {
 	orderNumber, err := uc.repo.GetOrderToProcess(ctx, uc.cfg.ProcessRetryTimeout)
+	logger := uc.logger.With(slog.Bool("processor_worker", true))
 	if err != nil {
-		uc.logger.WithError(err).Error("failed to get order to process")
+		logger.WithError(err).Error("failed to get order to process")
 		return
 	}
 	if orderNumber == "" {
-		uc.logger.Debug("no orders to process")
+		logger.Debug("no orders to process")
 		return
 	}
 
-	logger := uc.logger.WithField("order_number", orderNumber)
+	logger = logger.WithString("order_number", orderNumber)
 
 	resp, err := uc.accrualRepo.GetOrderAccrual(ctx, orderNumber)
 	if err != nil {
@@ -29,12 +30,11 @@ func (uc *useCase) processOrder(ctx context.Context) {
 		return
 	}
 
-	logger = logger.
-		WithFields(logrus.Fields{
-			"accrual_order_number": resp.Order,
-			"accrual_order_status": resp.Status,
-			"accrual_amount":       resp.Accrual,
-		})
+	logger = logger.With(
+		slog.String("accrual_order_number", resp.Order),
+		slog.String("accrual_order_status", string(resp.Status)),
+		slog.Float64("accrual_amount", resp.Accrual),
+	)
 
 	switch resp.Status {
 	case models.AccrualStatusProcessed:
@@ -62,7 +62,7 @@ func (uc *useCase) workerIter(ctx context.Context) {
 func (uc *useCase) MakeProcessorWorker(
 	ctx context.Context,
 ) {
-	ticker := time.NewTicker(time.Duration(time.Second))
+	ticker := time.NewTicker(time.Duration(uc.cfg.WorkerTickDuration * int(time.Second)))
 	defer ticker.Stop()
 
 	for {
