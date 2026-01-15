@@ -1,0 +1,4 @@
+package: restapi
+generate:
+  models: true
+output: models.gen.go
