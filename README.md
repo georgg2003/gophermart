@@ -31,15 +31,7 @@ go run ./cmd/gophermart \
 
 ## API
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/user/register` | Register new user |
-| POST | `/api/user/login` | Authenticate |
-| POST | `/api/user/orders` | Submit order number |
-| GET | `/api/user/orders` | List orders with statuses |
-| GET | `/api/user/balance` | Current balance |
-| POST | `/api/user/balance/withdraw` | Withdraw points |
-| GET | `/api/user/withdrawals` | Withdrawal history |
+[./api/swagger.yaml](swagger)
 
 ## Configuration
 
