@@ -1,25 +1,50 @@
-# go-musthave-diploma-tpl
+# Gophermart
 
-Шаблон репозитория для индивидуального дипломного проекта курса «Go-разработчик»
+A loyalty points accumulation system — REST API service built with Go.
 
-# Начало работы
+Users register, submit order numbers, and earn points via an external accrual service. Points can be withdrawn to pay for new orders.
 
-1. Склонируйте репозиторий в любую подходящую директорию на вашем компьютере.
-2. В корне репозитория выполните команду `go mod init <name>` (где `<name>` — адрес вашего репозитория на GitHub без
-   префикса `https://`) для создания модуля
+## Features
 
-# Обновление шаблона
+- User registration and authentication (JWT)
+- Order submission and status tracking
+- Async polling of external accrual service
+- Balance management: accruals and withdrawals
+- Idempotent order processing
 
-Чтобы иметь возможность получать обновления автотестов и других частей шаблона, выполните команду:
+## Stack
 
+Go · PostgreSQL · Chi · JWT · golang-migrate
+
+## Running locally
+
+```bash
+# Start PostgreSQL
+docker compose up -d postgres
+
+# Run the service
+go run ./cmd/gophermart \
+  -d "postgres://postgres:postgres@localhost:5432/gophermart?sslmode=disable" \
+  -a "localhost:8080" \
+  -r "http://localhost:8088"
 ```
-git remote add -m master template https://github.com/yandex-praktikum/go-musthave-diploma-tpl.git
-```
 
-Для обновления кода автотестов выполните команду:
+## API
 
-```
-git fetch template && git checkout template/master .github
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/user/register` | Register new user |
+| POST | `/api/user/login` | Authenticate |
+| POST | `/api/user/orders` | Submit order number |
+| GET | `/api/user/orders` | List orders with statuses |
+| GET | `/api/user/balance` | Current balance |
+| POST | `/api/user/balance/withdraw` | Withdraw points |
+| GET | `/api/user/withdrawals` | Withdrawal history |
 
-Затем добавьте полученные изменения в свой репозиторий.
+## Configuration
+
+| Flag | Env | Description |
+|------|-----|-------------|
+| `-a` | `RUN_ADDRESS` | HTTP server address |
+| `-d` | `DATABASE_URI` | PostgreSQL DSN |
+| `-r` | `ACCRUAL_SYSTEM_ADDRESS` | Accrual service URL |
