@@ -31,7 +31,8 @@ go run ./cmd/gophermart \
 
 ## API
 
-[./api/swagger.yaml](swagger)
+API endpoints can be found in [api/swagger.yaml](swagger)
+Code is generated from this file with oapi-codegen
 
 ## Configuration
 
