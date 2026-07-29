@@ -14,7 +14,7 @@ Users register, submit order numbers, and earn points via an external accrual se
 
 ## Stack
 
-Go · PostgreSQL · Chi · JWT · golang-migrate
+Go · PostgreSQL · Echo · JWT · golang-migrate
 
 ## Running locally
 
